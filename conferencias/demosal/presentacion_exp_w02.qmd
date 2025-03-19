@@ -1,8 +1,8 @@
 ---
 pagetitle: "Justicia en las notas"
 Author: Equipo EDUMER
-#bibliography: ".../input/bib/just-school.bib"
-#csl: "input/bib/apa6.csl"
+bibliography: "input/bib/just-school.bib"
+csl: "input/bib/apa6.csl"
 lang: es
 
 knitr:
@@ -262,7 +262,7 @@ datos %>% select(exp_t1_a, exp_t1_b) %>%
                 sort.frq="first.desc",
                 axis.labels = c("A.", "B."),
                 show.total=FALSE,
-                geom.colors = c("#F08080", "#E74C3C", "#C0392B", "#3498DB", "#2980B9", "#1F618D")) +
+                geom.colors = c("#505050", "#555555", "#404040", "#A0A0A0", "#8C8C8C", "#787878")) +
   theme_bw()+
   theme(legend.position="bottom",
         text=element_text(size=16))+
@@ -298,7 +298,7 @@ datos %>% select(exp_t2_a, exp_t2_b) %>%
                 show.total=FALSE,
                 axis.labels=c("A.",
                               "B."),
-                geom.colors = c("#F08080", "#E74C3C", "#C0392B", "#3498DB", "#2980B9", "#1F618D")) +
+                geom.colors = c("#505050", "#555555", "#404040", "#A0A0A0", "#8C8C8C", "#787878")) +
   theme_bw()+
   theme(legend.position="bottom",
         text=element_text(size=16))+
@@ -336,7 +336,7 @@ datos %>% select(exp_t3_a, exp_t3_b) %>%
                 show.total=FALSE,
                 axis.labels=c("A.",
                               "B."),
-                geom.colors = c("#F08080", "#E74C3C", "#C0392B", "#3498DB", "#2980B9", "#1F618D")) +
+                geom.colors = c("#505050", "#555555", "#404040", "#A0A0A0", "#8C8C8C", "#787878")) +
   theme_bw()+
   theme(legend.position="bottom",
         text=element_text(size=16))+
@@ -374,10 +374,10 @@ datos %>% select(exp_t4_d:exp_t4_a) %>%
                 show.total=FALSE,
                 axis.labels=rev(c("A.", "B.", "C.", "D.")),
     geom.colors = c(
-      "#F08080", "#E74C3C", "#C0392B", 
-      "#B0C4DE", "#87CEEB", "#5DADE2", 
-      "#3498DB", "#2E86C1", "#2874A6", 
-      "#21618C", "#1B4F72"
+     "#505050", "#555555", "#404040", 
+  "#C0C0C0", "#D0D0D0", "#B8B8B8",  
+  "#A0A0A0", "#909090", "#808080",  
+  "#707070", "#606060"   
     )) +
   theme_bw()+
   theme(legend.position="bottom",
@@ -413,7 +413,7 @@ plot_basica <- datos %>% filter(curso=="Básica") %>%
   dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
   plot_stackfrq(show.total=FALSE,
                 axis.labels=rev(c("A.", "B.", "C.", "D.")),
-    geom.colors = c("#E74C3C", "#2E86C1"
+    geom.colors = c("#5c5c5c", "#DBDBDB"
     )) +
   theme_bw()+
   theme(legend.position="bottom",
@@ -427,7 +427,7 @@ plot_media <- datos %>% filter(curso=="Media") %>%
   dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
   plot_stackfrq(show.total=FALSE,
                 axis.labels=rev(c("A.", "B.", "C.", "D.")),
-    geom.colors = c("#E74C3C", "#2E86C1"
+    geom.colors = c("#5c5c5c", "#DBDBDB"
     )) +
   theme_bw()+
   theme(legend.position="bottom",
@@ -469,7 +469,7 @@ plot_hombre <- datos %>% filter(genero=="Hombre") %>%
   dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
   plot_stackfrq(show.total=FALSE,
                 axis.labels=rev(c("A.", "B.", "C.", "D.")),
-    geom.colors = c("#E74C3C", "#2E86C1"
+    geom.colors = c("#5c5c5c", "#DBDBDB"
     )) +
   theme_bw()+
   theme(legend.position="bottom",
@@ -483,7 +483,7 @@ plot_mujer <- datos %>% filter(genero=="Mujer") %>%
   dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
   plot_stackfrq(show.total=FALSE,
                 axis.labels=rev(c("A.", "B.", "C.", "D.")),
-    geom.colors = c("#E74C3C", "#2E86C1"
+    geom.colors = c("#5c5c5c", "#DBDBDB"
     )) +
   theme_bw()+
   theme(legend.position="bottom",
@@ -525,7 +525,7 @@ plot_part_sub <- datos %>% filter(dependencia=="Colegio Particular Subvencionado
   dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
   plot_stackfrq(show.total=FALSE,
                 axis.labels=rev(c("A.", "B.", "C.", "D.")),
-    geom.colors = c("#E74C3C", "#2E86C1"
+    geom.colors = c("#5c5c5c", "#DBDBDB"
     )) +
   theme_bw()+
   theme(legend.position="bottom",
@@ -539,7 +539,7 @@ plot_mun <- datos %>% filter(dependencia=="Colegio Municipal") %>%
   dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
   plot_stackfrq(show.total=FALSE,
                 axis.labels=rev(c("A.", "B.", "C.", "D.")),
-    geom.colors = c("#E74C3C", "#2E86C1"
+    geom.colors = c("#5c5c5c", "#DBDBDB"
     )) +
   theme_bw()+
   theme(legend.position="bottom",
@@ -580,7 +580,7 @@ plot_superiores <- datos %>% filter(educ_max=="Estudios superiores") %>%
   dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
   plot_stackfrq(show.total=FALSE,
                 axis.labels=rev(c("A.", "B.", "C.", "D.")),
-    geom.colors = c("#E74C3C", "#2E86C1"
+    geom.colors = c("#5c5c5c", "#DBDBDB"
     )) +
   theme_bw()+
   theme(legend.position="bottom",
@@ -594,7 +594,7 @@ plot_media_menos <- datos %>% filter(educ_max=="Enseñanza media o menos") %>%
   dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
   plot_stackfrq(show.total=FALSE,
                 axis.labels=rev(c("A.", "B.", "C.", "D.")),
-    geom.colors = c("#E74C3C", "#2E86C1"
+    geom.colors = c("#5c5c5c", "#DBDBDB"
     )) +
   theme_bw()+
   theme(legend.position="bottom",
@@ -634,7 +634,7 @@ plot_mas_lib <- datos %>% filter(libros_hogar=="Más de 25 libros") %>%
   dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
   plot_stackfrq(show.total=FALSE,
                 axis.labels=rev(c("A.", "B.", "C.", "D.")),
-    geom.colors = c("#E74C3C", "#2E86C1"
+    geom.colors = c("#5c5c5c", "#DBDBDB"
     )) +
   theme_bw()+
   theme(legend.position="bottom",
@@ -648,7 +648,7 @@ plot_menos_lib <- datos %>% filter(libros_hogar=="Menos de 25 libros") %>%
   dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
   plot_stackfrq(show.total=FALSE,
                 axis.labels=rev(c("A.", "B.", "C.", "D.")),
-    geom.colors = c("#E74C3C", "#2E86C1"
+    geom.colors = c("#5c5c5c", "#DBDBDB"
     )) +
   theme_bw()+
   theme(legend.position="bottom",
@@ -679,6 +679,72 @@ ggarrange(plot_mas_lib, plot_menos_lib, common.legend = TRUE, nrow=2, legend = c
 
 ```
 
+:::
+:::
+##
+
+```{r}
+datos <- datos %>% mutate(nse = case_when(
+  dependencia == "Colegio Municipal" ~ 1,
+  libros_hogar == "Menos de 25 libros"  ~ 1,
+  educ_max == "Enseñanza media o menos"  ~ 1,
+   dependencia == "Colegio Particular Subvencionado" ~ 2,
+  libros_hogar == "Más de 25 libros"  ~ 2,
+  educ_max == "Estudios superiores"  ~ 2,
+    TRUE ~ NA_integer_
+  ))
+
+
+plot_1 <- datos %>% filter(nse==1) %>% 
+  dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
+  plot_stackfrq(show.total=FALSE,
+                axis.labels=rev(c("A.", "B.", "C.", "D.")),
+    geom.colors = c("#5c5c5c", "#DBDBDB"
+    )) +
+  theme_bw()+
+  theme(legend.position="bottom",
+        text=element_text(size=16))+
+  labs(
+    fill = "Cantidad décimas",
+    title = "Menor NSE"
+  )
+
+plot_2 <- datos %>% filter(nse==2) %>% 
+  dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
+  plot_stackfrq(show.total=FALSE,
+                axis.labels=rev(c("A.", "B.", "C.", "D.")),
+    geom.colors = c("#5c5c5c", "#DBDBDB"
+    )) +
+  theme_bw()+
+  theme(legend.position="bottom",
+        text=element_text(size=16))+
+  labs(
+    fill = "Cantidad décimas",
+    title = "Mayor NSE"
+  )
+
+```
+
+::: {.columns}
+
+::: {.column width="20%"}
+
+![](images/caso4.png)
+
+:::
+
+::: {.column width="80%"}
+
+<br>
+
+```{r}
+#| fig-width: 8
+#| fig-height: 5
+#| out-width: '95%'
+
+ggarrange(plot_1, plot_2, common.legend = TRUE, nrow=2, legend = c("bottom", "right"))
+
+```
 :::
 :::
 
