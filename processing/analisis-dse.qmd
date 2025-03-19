@@ -1,0 +1,166 @@
+---
+title: "Análisis DSE: multinivel"
+author: "Equipo EDUMER"
+fontsize: 12pt
+#bibliography: "../input/mini-proyecto.bib"
+#csl: "input/bib/apa6.csl"
+format:
+  html:
+    toc: true
+    toc-location: right
+    toc-depth: 6
+    toc-expand: 6
+    toc-title: Contenidos
+    number-sections: false
+    number-depth: 6
+    theme: 
+    - edumer.scss
+    - sandstone
+    title-block-banner: true
+editor: visual
+lang: es
+---
+
+```{r data}
+#| echo: false
+pacman::p_load(dplyr, sjPlot, stargazer, kableExtra, texreg, haven, sjlabelled, ggplot2, summarytools, ggtext, ggpubr, hrbrthemes, tidyr, stringr, sjmisc, ggalluvial, shadowtext, sjmisc, lme4, Matrix)
+
+# cargamos datos long 
+load("../input/data/original/edumer_students_long.RData")
+
+# Codificamos los valores 99-88 como missing para todas las variables
+datos <- edumer_students_long %>% set_na(., na = c(99, 88)) %>% filter(ola == 2)
+```
+
+```{r}
+#| echo: false
+
+# crear variable dependencia 
+
+datos <- datos %>%
+  mutate(dependencia = case_when(
+    d2 %in% c(2, 3, 4, 7, 8, 10, 11) ~ 1,
+    d2 == 5 ~ 2,
+    d2 == 6 ~ 3,
+    TRUE ~ NA_integer_
+  ))
+
+datos$dependencia <- factor(datos$dependencia, 
+                                               levels=c(1,2,3),
+                                               labels=c(
+                                                 "Colegio Particular Subvencionado",
+                                                 "Colegio Municipal",
+                                                 "Colegio Privado"))
+
+# nivel educ-hogar
+datos <- datos %>%
+  mutate(educ_max = case_when(
+    !is.na(p26) & is.na(p27) ~ p26,
+    is.na(p26) & !is.na(p27) ~ p27,
+    !is.na(p26) & !is.na(p27) ~ pmax(p26, p27, na.rm = TRUE),
+    TRUE ~ NA_real_
+  )) 
+
+datos$educ_max <- car::recode(datos$educ_max, "1=1; 2=1; 3=1; 4=2; 5=2; 6=2")
+datos$educ_max <- factor(datos$educ_max, 
+                              levels=c(1,2),
+                              labels=c("Enseñanza media o menos","Estudios superiores"))
+
+
+
+# libros-hogar
+
+datos$p30 <- car::recode(datos$p30,"1=1;2=1;3=1;4=2;5=2;6=2")
+datos$p30 <- factor(datos$p30,
+                                 levels=c(1,2),
+                                 labels=c("Menos de 25 libros","Más de 25 libros"))
+
+
+
+# genero
+datos$p20 <- car::recode(datos$p20, "3=NA")
+datos$p20 <- factor(datos$p20,
+                      levels=c(1,2),
+                      labels=c("Hombre","Mujer"))
+
+datos <- datos %>% rename(libros_hogar = p30, 
+                              genero = p20) 
+
+
+# curso 
+datos$nivel_estudiante <- factor(datos$nivel_estudiante,
+                      levels=c(1,2),
+                      labels=c("Básica","Media"))
+
+# meritocracia 
+
+```
+
+## Preparación de los datos DSE
+
+```{r}
+#| echo: false
+ 
+# paso 1: se crea un diccionario para poder distinguir las caracteristicas de las viñetas
+diccionario_viñetas <- tibble(
+  variable = c("exp_t4_a", "exp_t4_b", "exp_t4_c", "exp_t4_d"),
+  descripcion_viñeta = c(
+  "Se esfuerza más que la mayoría - Su casa es pequeña, no tiene un espacio cómodo para estudiar", 
+  "Se esfuerza menos que la mayoría - Su casa es grande, tiene un espacio cómodo para estudiar", 
+  "Se esfuerza más que la mayoría - Su casa es grande, tiene un espacio cómodo para estudiar", 
+  "Se esfuerza menos que la mayoría - Su casa es pequeña, no tiene un espacio cómodo para estudiar"))
+
+
+# paso 2: 
+datos <- datos %>%
+  pivot_longer(cols = starts_with("exp_t4_"),
+               names_to = "variable", 
+               values_to = "decimas_asignadas")
+
+# paso 3: 
+datos <- datos %>%
+  left_join(diccionario_viñetas, by = "variable")
+
+# paso 4: se distinguen las dos caracteristicas que compone la viñeta en variables individuales
+datos <- datos %>%
+  separate(descripcion_viñeta, into = c("esfuerzo", "contexto_hogar"), sep = " - ")
+
+#d <- datos %>% select(id_estudiante, variable, decimas_asignadas, esfuerzo, contexto_hogar, prop_decimas)
+
+
+# calcular las décimas como proporciones 
+datos <- datos %>%
+  group_by(id_estudiante) %>%
+  mutate(total_decimas = sum(decimas_asignadas)) %>%
+  ungroup()
+
+datos <- datos %>%
+  mutate(prop_decimas = decimas_asignadas / total_decimas)
+
+```
+
+## Modelos multinivel
+
+```{r}
+#| echo: false
+
+# m. multinivel
+
+# tratamiendo del dse como proporciones
+m1 <- lmer(prop_decimas ~ 1 + esfuerzo + contexto_hogar + dependencia + genero + educ_max + nivel_estudiante + libros_hogar + p1_1 + p1_2 + p2_1 + p2_2 + p2_3 + (1 | id_estudiante), data = datos)
+
+summary(m1)
+screenreg(m1)
+
+plot_model(m1, show.values = TRUE)+ theme_sjplot()
+
+# tratamiendo el dse con las decimas 
+
+m2 <- lmer(decimas_asignadas ~ 1 + esfuerzo + contexto_hogar + dependencia + genero + educ_max + nivel_estudiante + libros_hogar + p1_1 + p1_2 + p2_1 + p2_2 + p2_3 + (1 | id_estudiante), data = datos)
+
+summary(m2)
+screenreg(m2)
+
+plot_model(m2, show.values = TRUE)+ theme_sjplot()
+
+```

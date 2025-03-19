@@ -1,0 +1,704 @@
+---
+pagetitle: "Justicia en las notas"
+Author: Equipo EDUMER
+#bibliography: ".../input/bib/just-school.bib"
+#csl: "input/bib/apa6.csl"
+lang: es
+
+knitr:
+  opts_chunk:
+    collapse: true
+    comment: "#>"
+    R.options:
+      knitr.graphics.auto_pdf: true
+      
+format:
+  revealjs:
+    #logo: images/edumer.png
+    slide-number: true
+    theme: "edumer.scss"
+    auto-stretch: false
+    title-slide-attributes:
+      visibility: false
+    transition: fade
+    transition-speed: slow
+# data-background-image: images/cover.jpg
+# data-background-size: cover
+    auto-play-media: true
+  pdf:
+    format: beamer 
+    keep-tex: true  # Debug LaTeX output if needed
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(knitr)
+knitr::opts_chunk$set(echo = F,
+                      warning = F,
+                      error = F, 
+                      message = F) 
+```
+
+```{r}
+#| label: packages
+#| include: false
+
+if (! require("pacman")) install.packages("pacman")
+
+pacman::p_load(tidyverse, dplyr, sjmisc, car, sjlabelled, stargazer, haven, sjPlot, ggplot2, tidyr, stringr, corrplot, summarytools, ggdist, ggpubr)
+
+options(scipen=999)
+rm(list = ls())
+```
+
+
+```{r}
+#| label: data
+#| include: false
+
+load(here::here("./input/data/proc/proc_w02.RData"))
+
+```
+
+
+::: columns
+::: {.column width="20%"}
+
+![](images/demosal.png)
+
+![](images/edumer.png)
+
+![](images/qr.png)
+
+
+
+:::
+
+::: {.column .column-right width="80%"}  
+<br>
+
+## **Justicia en la Evaluación Escolar: Un experimento de encuesta**
+
+------------------------------------------------------------------------
+
+**Juan Carlos Castillo, María Fernanda Núñez, <br> Kevin Carrasco, Jesús Díaz, Javiera González y  Andreas Laffert**
+
+##### [Departamento de Sociología, Universidad de Chile - COES]{.gray}
+
+
+[**VIII Seminario Internacional DEMOSAL**]{.gray}
+
+[24-26 Marzo 2025, Brasil]{.gray}
+
+:::
+:::
+
+
+# Contexto y motivación 
+
+::: {.columns}
+
+::: {.column width="20%"}
+
+![](images/edumer.png)
+
+:::
+
+::: {.column width="80%"}
+::: {.incremental .highlight-last style="font-size: 100%;"}
+- ANID/FONDECYT N°1210847 2021-2024 - Meritocracia en la escuela: Fundamentos morales del mercado educativo y sus implicancias para la formación ciudadana en Chile.
+
+- Primera etapa:
+  * Estudio cualitativo
+  * Análisis de datos secundarios
+ 
+- Segunda etapa:
+  * Encuesta panel: dos olas estudiantes y apoderados
+  * Experimentos de encuestas
+  
+- Más información: [jc-castillo.com/project/fondecyt-edumer/](jc-castillo.com/project/fondecyt-edumer/)
+
+:::
+:::
+:::
+
+## **Escuela, desigualdad y recompensas** 
+::: {.incremental .highlight-last style="font-size: 100%;"}
+- Contexto escolar chileno caracterizado por amplia desigualdad, privatización y comodificación [@bellei_estudio_2013]
+
+- Falta de estudios sobre los criterios de justicia en la asignación de recompensas en el sistema educativo chileno por parte de las comunidades escolares
+
+- Observar la manera en que estudiantes operan sus **criterios de justicia** al momento de [***distribuir recompensas en el contexto escolar***]{.black} 
+
+- Recompensa a distribuir: [***décimas***]{.red2} 
+
+- Experimento distribucional de encuestas [@gilgen_distributional_2020]
+
+:::
+
+## **Meritocracia** 
+
+::: {.incremental .highlight-last style="font-size: 100%;"}
+
+- **Mérito** = esfuerzo + talento [@young_rise_1958]
+
+- Asociado a justificación de desigualdad al legitimar diferencias muchas veces asociadas a oportunidades [@mijs_unfulfillable_2016]
+
+- [**Rol de la meritocracia en el principio de justicia**]{.black} 
+
+  * Responde al **principio de equidad** en la distribución de las notas [@resh_sense_2010], el cual se entiende como **justo** para dicha asignación cuando responde a criterios como el esfuerzo y el talento
+
+:::
+
+#  Pregunta de investigación  
+
+
+::: {.xlarge}
+
+¿Cuáles son los [***criterios de justicia***]{.black} que operan en los/as estudiantes al momento de **distribuir décimas** a otros estudiantes según características que aludan al mérito y sus condiciones de origen?
+
+:::
+
+
+
+## **Datos**
+
+::: {.incremental .highlight-last style="font-size: 100%;"}
+- Encuesta panel en estudiantes 2023-2024
+
+- Ola 2 N=637
+
+- 7 escuelas de la región metropolitana
+
+- 49.1% estudiantes de 7° básico y 50.9% estudiantes de 2° medio
+
+- 51.5% hombres y 48.5% Mujeres
+:::
+
+# Experimento de <br> *distribución de recompensas* <br> (*décimas*) {data-background-color="#5f5758"}
+
+## **Sobre el experimento**
+::: {.incremental .highlight-last style="font-size: 100%;"}
+
+- Experimento de distribución de recompensas en el contexto escolar
+- Carácter **exploratorio** 
+- Recuadros que describen tipologías de estudiantes a partir de dos características: 
+  - [**Esfuerzo**]{.red2} 
+  - [**Condiciones del hogar**]{.red2}
+
+- A partir de la nota, pueden ***aprobar** y/o **desaprobar*** a algún estudiante 
+
+:::
+
+## Planteamiento del experimento
+
+Ahora viene una pregunta un poco diferente, donde tú puedes decidir si le subes la nota a estudiantes de tu curso. 
+
+- Instrucciones:
+
+  * el profesor entrega las notas de una prueba,
+  * hay estudiantes de tu curso que sacaron un 3.7 y que necesitan un 4.0 para aprobar. 
+  * el profesor te dice que tú tienes la posibilidad de subir notas, para lo cual te ofrece algunas  décimas que puedes repartir 
+
+
+## **Caso 1**
+
+Por ejemplo, veamos el siguiente caso con dos estudiantes que obtuvieron nota 3.7, y tú tienes 5 décimas para repartir como tú decidas. Para ello presiona en décimas a regalar y elige. Recuerda que no puedes repartir más de 0.5 en total, o si no aparecerá un mensaje de error.
+
+![](images/caso 1 exp.png)
+
+## **Caso 2**: Esfuerzo
+
+En el siguiente caso la tarea es la misma, debes repartir 5 décimas en dos estudiantes que obtuvieron 3.7, pero vamos a contarte algunas diferencias entre estudiantes. Por ejemplo, hay estudiantes que se esfuerzan más para estudiar, y otros que se esfuerzan menos. ¿Cómo repartirías las décimas en este caso?
+
+![](images/caso 2 exp.png)
+
+
+## **Caso 3**:  Esfuerzo y condiciones del hogar
+
+::: {.columns}
+
+::: {.column width="40%}
+
+En el siguiente caso, para cada estudiante también vamos a contarte sobre cómo es su casa y si puede estudiar bien en ella. ¿Cómo repartirías las 5 décimas?
+
+:::
+
+::: {.column width="60%}
+
+![](images/caso 3 exp.png){width=100%}
+
+:::
+:::
+
+## **Caso 4**:  Esfuerzo y condiciones del hogar 
+
+Y finalmente, ahora tienes que repartir 10 décimas entre 4 estudiantes diferentes, ¿Cómo las repartirías?
+
+![](images/caso 4 exp.png)
+
+# Resultados {data-background-color="#5f5758"}
+
+##
+
+::: {.columns}
+
+::: {.column width="20%"}
+
+![](images/caso1.png)
+
+:::
+
+::: {.column width="80%"}
+
+```{r}
+#| fig-width: 8
+#| fig-height: 5
+#| out-width: '95%'
+
+datos %>% select(exp_t1_a, exp_t1_b) %>% 
+  plot_stackfrq(vjust=rep(c("top", "bottom"),6),
+                sort.frq="first.desc",
+                axis.labels = c("A.", "B."),
+                show.total=FALSE,
+                geom.colors = c("#F08080", "#E74C3C", "#C0392B", "#3498DB", "#2980B9", "#1F618D")) +
+  theme_bw()+
+  theme(legend.position="bottom",
+        text=element_text(size=16))+
+  labs(
+    fill = "Cantidad décimas",
+    title = "Caso 1 (sin características)"
+  )
+```
+
+:::
+:::
+
+##
+
+::: {.columns}
+
+::: {.column width="20%"}
+
+![](images/caso2.png)
+
+:::
+
+::: {.column width="80%"}
+
+```{r}
+#| fig-width: 8
+#| fig-height: 5
+#| out-width: '95%'
+
+datos %>% select(exp_t2_a, exp_t2_b) %>% 
+  plot_stackfrq(vjust=rep(c("top", "bottom"),6),
+                sort.frq="first.desc",
+                show.total=FALSE,
+                axis.labels=c("A.",
+                              "B."),
+                geom.colors = c("#F08080", "#E74C3C", "#C0392B", "#3498DB", "#2980B9", "#1F618D")) +
+  theme_bw()+
+  theme(legend.position="bottom",
+        text=element_text(size=16))+
+  labs(
+    fill = "Cantidad décimas",
+    title = "Caso 2 (esfuerzo)"
+  )
+```
+
+:::
+:::
+
+##
+
+::: {.columns}
+
+::: {.column width="20%"}
+
+![](images/caso3.png)
+
+:::
+
+::: {.column width="80%"}
+
+
+
+```{r}
+#| fig-width: 8
+#| fig-height: 5
+#| out-width: '95%'
+
+datos %>% select(exp_t3_a, exp_t3_b) %>% 
+  plot_stackfrq(vjust=rep(c("top", "bottom"),6),
+                sort.frq="first.desc",
+                show.total=FALSE,
+                axis.labels=c("A.",
+                              "B."),
+                geom.colors = c("#F08080", "#E74C3C", "#C0392B", "#3498DB", "#2980B9", "#1F618D")) +
+  theme_bw()+
+  theme(legend.position="bottom",
+        text=element_text(size=16))+
+  labs(
+    fill = "Cantidad décimas",
+    title = "Caso 3 (esfuerzo y condiciones del hogar)"
+  )
+```
+
+:::
+:::
+
+##
+
+::: {.columns}
+
+::: {.column width="20%"}
+
+![](images/caso4.png)
+
+:::
+
+::: {.column width="80%"}
+
+<br>
+
+```{r}
+#| fig-width: 8
+#| fig-height: 5
+#| out-width: '95%'
+
+
+datos %>% select(exp_t4_d:exp_t4_a) %>% 
+  plot_stackfrq(vjust=rep(c("top", "bottom"),15),
+                show.total=FALSE,
+                axis.labels=rev(c("A.", "B.", "C.", "D.")),
+    geom.colors = c(
+      "#F08080", "#E74C3C", "#C0392B", 
+      "#B0C4DE", "#87CEEB", "#5DADE2", 
+      "#3498DB", "#2E86C1", "#2874A6", 
+      "#21618C", "#1B4F72"
+    )) +
+  theme_bw()+
+  theme(legend.position="bottom",
+        text=element_text(size=16))+
+  labs(
+    fill = "Cantidad décimas",
+    title = "Caso 4 (esfuerzo y condiciones del hogar)"
+  )
+```
+
+:::
+:::
+
+##
+
+```{r}
+datos$exp_t4_a_rec <- car::recode(datos$exp_t4_a, "c(0,1,2)='No aprueba'; else='Aprueba'",
+                                                  as.factor=TRUE,
+                                                  levels = c("No aprueba", "Aprueba"))
+datos$exp_t4_b_rec <- car::recode(datos$exp_t4_b, "c(0,1,2)='No aprueba'; else='Aprueba'",
+                                                  as.factor=TRUE,
+                                                  levels = c("No aprueba", "Aprueba"))
+datos$exp_t4_c_rec <- car::recode(datos$exp_t4_c, "c(0,1,2)='No aprueba'; else='Aprueba'",
+                                                  as.factor=TRUE,
+                                                  levels = c("No aprueba", "Aprueba"))
+datos$exp_t4_d_rec <- car::recode(datos$exp_t4_d, "c(0,1,2)='No aprueba'; else='Aprueba'",
+                                                  as.factor=TRUE,
+                                                  levels = c("No aprueba", "Aprueba"))
+```
+
+```{r}
+plot_basica <- datos %>% filter(curso=="Básica") %>% 
+  dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
+  plot_stackfrq(show.total=FALSE,
+                axis.labels=rev(c("A.", "B.", "C.", "D.")),
+    geom.colors = c("#E74C3C", "#2E86C1"
+    )) +
+  theme_bw()+
+  theme(legend.position="bottom",
+        text=element_text(size=16))+
+  labs(
+    fill = "Cantidad décimas",
+    title = "Basica"
+  )
+
+plot_media <- datos %>% filter(curso=="Media") %>% 
+  dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
+  plot_stackfrq(show.total=FALSE,
+                axis.labels=rev(c("A.", "B.", "C.", "D.")),
+    geom.colors = c("#E74C3C", "#2E86C1"
+    )) +
+  theme_bw()+
+  theme(legend.position="bottom",
+        text=element_text(size=16))+
+  labs(
+    fill = "Cantidad décimas",
+    title = "Media"
+  )
+```
+
+::: {.columns}
+
+::: {.column width="20%"}
+
+![](images/caso4.png)
+
+:::
+
+::: {.column width="80%"}
+
+<br>
+
+```{r}
+#| fig-width: 8
+#| fig-height: 5
+#| out-width: '95%'
+
+ggarrange(plot_basica, plot_media, common.legend = TRUE, nrow=2, legend = c("bottom", "right"))
+
+```
+
+:::
+:::
+
+##
+
+```{r}
+plot_hombre <- datos %>% filter(genero=="Hombre") %>% 
+  dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
+  plot_stackfrq(show.total=FALSE,
+                axis.labels=rev(c("A.", "B.", "C.", "D.")),
+    geom.colors = c("#E74C3C", "#2E86C1"
+    )) +
+  theme_bw()+
+  theme(legend.position="bottom",
+        text=element_text(size=16))+
+  labs(
+    fill = "Cantidad décimas",
+    title = "Hombres"
+  )
+
+plot_mujer <- datos %>% filter(genero=="Mujer") %>% 
+  dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
+  plot_stackfrq(show.total=FALSE,
+                axis.labels=rev(c("A.", "B.", "C.", "D.")),
+    geom.colors = c("#E74C3C", "#2E86C1"
+    )) +
+  theme_bw()+
+  theme(legend.position="bottom",
+        text=element_text(size=16))+
+  labs(
+    fill = "Cantidad décimas",
+    title = "Mujeres"
+  )
+```
+
+::: {.columns}
+
+::: {.column width="20%"}
+
+![](images/caso4.png)
+
+:::
+
+::: {.column width="80%"}
+
+<br>
+
+```{r}
+#| fig-width: 8
+#| fig-height: 5
+#| out-width: '95%'
+
+ggarrange(plot_hombre, plot_mujer, common.legend = TRUE, nrow=2, legend = c("bottom", "right"))
+
+```
+
+:::
+:::
+
+##
+
+```{r}
+plot_part_sub <- datos %>% filter(dependencia=="Colegio Particular Subvencionado") %>% 
+  dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
+  plot_stackfrq(show.total=FALSE,
+                axis.labels=rev(c("A.", "B.", "C.", "D.")),
+    geom.colors = c("#E74C3C", "#2E86C1"
+    )) +
+  theme_bw()+
+  theme(legend.position="bottom",
+        text=element_text(size=16))+
+  labs(
+    fill = "Cantidad décimas",
+    title = "Colegio Particular Subvencionado"
+  )
+
+plot_mun <- datos %>% filter(dependencia=="Colegio Municipal") %>% 
+  dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
+  plot_stackfrq(show.total=FALSE,
+                axis.labels=rev(c("A.", "B.", "C.", "D.")),
+    geom.colors = c("#E74C3C", "#2E86C1"
+    )) +
+  theme_bw()+
+  theme(legend.position="bottom",
+        text=element_text(size=16))+
+  labs(
+    fill = "Cantidad décimas",
+    title = "Colegio Municipal"
+  )
+```
+::: {.columns}
+
+::: {.column width="20%"}
+
+![](images/caso4.png)
+
+:::
+
+::: {.column width="80%"}
+
+<br>
+
+```{r}
+#| fig-width: 8
+#| fig-height: 5
+#| out-width: '95%'
+
+ggarrange(plot_part_sub, plot_mun, common.legend = TRUE, nrow=2, legend = c("bottom", "right"))
+
+```
+
+:::
+:::
+
+##
+
+```{r}
+plot_superiores <- datos %>% filter(educ_max=="Estudios superiores") %>% 
+  dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
+  plot_stackfrq(show.total=FALSE,
+                axis.labels=rev(c("A.", "B.", "C.", "D.")),
+    geom.colors = c("#E74C3C", "#2E86C1"
+    )) +
+  theme_bw()+
+  theme(legend.position="bottom",
+        text=element_text(size=16))+
+  labs(
+    fill = "Cantidad décimas",
+    title = "Estudios superiores"
+  )
+
+plot_media_menos <- datos %>% filter(educ_max=="Enseñanza media o menos") %>% 
+  dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
+  plot_stackfrq(show.total=FALSE,
+                axis.labels=rev(c("A.", "B.", "C.", "D.")),
+    geom.colors = c("#E74C3C", "#2E86C1"
+    )) +
+  theme_bw()+
+  theme(legend.position="bottom",
+        text=element_text(size=16))+
+  labs(
+    fill = "Cantidad décimas",
+    title = "Enseñanza media o menos"
+  )
+```
+::: {.columns}
+
+::: {.column width="20%"}
+
+![](images/caso4.png)
+
+:::
+
+::: {.column width="80%"}
+
+<br>
+
+```{r}
+#| fig-width: 8
+#| fig-height: 5
+#| out-width: '95%'
+
+ggarrange(plot_superiores, plot_media_menos, common.legend = TRUE, nrow=2, legend = c("bottom", "right"))
+
+```
+:::
+:::
+
+##
+
+```{r}
+plot_mas_lib <- datos %>% filter(libros_hogar=="Más de 25 libros") %>% 
+  dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
+  plot_stackfrq(show.total=FALSE,
+                axis.labels=rev(c("A.", "B.", "C.", "D.")),
+    geom.colors = c("#E74C3C", "#2E86C1"
+    )) +
+  theme_bw()+
+  theme(legend.position="bottom",
+        text=element_text(size=16))+
+  labs(
+    fill = "Cantidad décimas",
+    title = "Más de 25 libros"
+  )
+
+plot_menos_lib <- datos %>% filter(libros_hogar=="Menos de 25 libros") %>% 
+  dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
+  plot_stackfrq(show.total=FALSE,
+                axis.labels=rev(c("A.", "B.", "C.", "D.")),
+    geom.colors = c("#E74C3C", "#2E86C1"
+    )) +
+  theme_bw()+
+  theme(legend.position="bottom",
+        text=element_text(size=16))+
+  labs(
+    fill = "Cantidad décimas",
+    title = "Menos de 25 libros"
+  )
+```
+::: {.columns}
+
+::: {.column width="20%"}
+
+![](images/caso4.png)
+
+:::
+
+::: {.column width="80%"}
+
+<br>
+
+```{r}
+#| fig-width: 8
+#| fig-height: 5
+#| out-width: '95%'
+
+ggarrange(plot_mas_lib, plot_menos_lib, common.legend = TRUE, nrow=2, legend = c("bottom", "right"))
+
+```
+
+:::
+:::
+
+## **Discusión y conclusiones**
+
+::: {.incremental .highlight-last style="font-size: 100%;"}
+
+- Estudiantes tienden a aprobar a quien se **esfuerza más**, *independientemente* de sus condiciones del hogar.
+
+- De todas formas, cuando los estudiantes se **esfuerzan menos** se tiende a recompensar más a quien tiene peores condiciones en su hogar.
+
+- Estudiantes de educación media recompenzan aún más a quienes se esfuerzan, en comparación con estudiantes de educación básica. No se observan diferencias por el sexo de los estudiantes.
+
+- *Agenda de investigación en justicia escolar*: posibles implicancias que estos criterios de distribución pueden tener en sus propios resultados educativos y en la asignación de recompensas en la vida en general.
+
+:::
+
+
+# Gracias por su atención! 
+
+-   **Github del proyecto:** <https://github.com/educacion-meritocracia>
+
+## Referencias
