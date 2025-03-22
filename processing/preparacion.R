@@ -8,7 +8,7 @@ datos <- db_students_w02 %>% set_na(., na = c(99, 88))
 
 # seleccionar 
 
-datos <- datos %>% select(d2_o2, p17_o2, p18_o2, p14_o2, nivel_estudiante_o2, 
+datos <- datos %>% select(p4_o2,d2_o2, p17_o2, p18_o2, p14_o2, nivel_estudiante_o2, 
                           p19_o2, p1_1_o2, p1_2_o2, p1_3_o2, p2_1_o2, p2_2_o2, p2_3_o2, 
                           exp_t1_a, exp_t1_b, exp_t2_a, exp_t2_b, exp_t3_a, exp_t3_b,
                           exp_t4_a, exp_t4_b, exp_t4_c, exp_t4_d)
