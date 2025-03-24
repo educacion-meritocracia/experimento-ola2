@@ -675,7 +675,7 @@ plot_n7 <- datos %>% filter(p4_o2==7.00) %>%
         text=element_text(size=16))+
   labs(
     fill = "Cantidad décimas",
-    title = "Estudiantes que obtuvieron Nota 7"
+    title = "Estudiantes que obtuvieron calificación 7"
   )
 
 plot_n4 <- datos %>% filter(p4_o2==4.00) %>% 
@@ -688,36 +688,10 @@ plot_n4 <- datos %>% filter(p4_o2==4.00) %>%
         text=element_text(size=16))+
   labs(
     fill = "Cantidad décimas",
-    title = "Estudiantes que obtuvieron Nota 4"
+    title = "Estudiantes que obtuvieron calificación 4"
   )
 ```
 
-```{r}
-#| fig-width: 8
-#| fig-height: 5
-#| out-width: '95%'
-#| echo: false
-
-ggarrange(plot_n5, plot_n6, common.legend = TRUE, nrow=2, legend = c("bottom", "right"))
-
-
-```
-
-:::
-:::
-
-## 
-
-::: {.columns}
-
-::: {.column width="20%"}
-
-![](images/caso4.png)
-:::
-
-::: {.column width="80%"}
-
-<br>
 
 ```{r}
 #| fig-width: 8
@@ -760,7 +734,7 @@ datos$p2_1_o2 <- factor(datos$p2_1_o2,
  
 
 
-plot_es <- datos %>% filter(p2_1_o2=="De acuerdo") %>% 
+plot_ec <- datos %>% filter(p2_1_o2=="De acuerdo") %>% 
   dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
   plot_stackfrq(show.total=FALSE,
                 axis.labels=rev(c("A.", "B.", "C.", "D.")),
@@ -773,7 +747,7 @@ plot_es <- datos %>% filter(p2_1_o2=="De acuerdo") %>%
     title = "Percepción esfuerzo en la escuela"
   )
 
-plot_ec <- datos %>% filter(p1_1_o2=="De acuerdo") %>% 
+plot_es <- datos %>% filter(p1_1_o2=="De acuerdo") %>% 
   dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
   plot_stackfrq(show.total=FALSE,
                 axis.labels=rev(c("A.", "B.", "C.", "D.")),
@@ -793,7 +767,7 @@ plot_ec <- datos %>% filter(p1_1_o2=="De acuerdo") %>%
 #| echo: false
 #| out-width: '95%'
 
-ggarrange(plot_es, plot_ec, common.legend = TRUE, nrow=2, legend = c("bottom", "right"))
+ggarrange(plot_ec, plot_es, common.legend = TRUE, nrow=2, legend = c("bottom", "right"))
 
 ```
 
@@ -862,7 +836,7 @@ plot_ts <- datos %>% filter(p1_2_o2=="De acuerdo") %>%
 #| echo: false
 #| out-width: '95%'
 
-ggarrange(plot_ts, plot_tc, common.legend = TRUE, nrow=2, legend = c("bottom", "right"))
+ggarrange(plot_tc, plot_ts, common.legend = TRUE, nrow=2, legend = c("bottom", "right"))
 
 ```
 
@@ -931,7 +905,7 @@ plot_ms <- datos %>% filter(p1_1_o2=="De acuerdo") %>%
 #| echo: false
 #| out-width: '95%'
 
-ggarrange(plot_ms, plot_mc, common.legend = TRUE, nrow=2, legend = c("bottom", "right"))
+ggarrange(plot_mc, plot_ms, common.legend = TRUE, nrow=2, legend = c("bottom", "right"))
 
 ```
 
@@ -945,9 +919,21 @@ ggarrange(plot_ms, plot_mc, common.legend = TRUE, nrow=2, legend = c("bottom", "
 
 - De todas formas, cuando los estudiantes se **esfuerzan menos** se tiende a recompensar más a quien tiene peores condiciones en su hogar.
 
-- Estudiantes de educación media recompenzan aún más a quienes se esfuerzan, en comparación con estudiantes de educación básica. No se observan diferencias por el sexo de los estudiantes.
+- Tanto estudiantes de educación media como hombres y con menor NSE recompenzan *aún más* a quienes se **esfuerzan**. 
 
-- *Agenda de investigación en justicia escolar*: posibles implicancias que estos criterios de distribución pueden tener en sus propios resultados educativos y en la asignación de recompensas en la vida en general.
+- Asimismo, estudiantes de colegios municipales de forma *unánime* *no recomepensan* a quien **no se esfuerza** y tiene condiciones **cómodas** para estudiar.
+
+:::
+
+## **Discusión y conclusiones**
+
+::: {.incremental .highlight-last style="font-size: 100%;"}
+
+- Estudiantes que obtuvieron calificación 4 (muy cercano a *reprobar*) *recompensan unanimemente* a quien se **esfuerza** y tiene **menos oportunidades**.
+
+- En general, el apoyo a estudiantes más meritorios se observa *aún más* cuando se consideran sus creencias relacionadas al mérito en la **sociedad** que en la **escuela**. 
+
+- **Proximamente**: A la luz de estos resultados, se buscará identificar si las creencias meritocráticas de los/as estudiantes están relacionadas con dicha asignación.
 
 :::
 
