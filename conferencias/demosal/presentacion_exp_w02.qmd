@@ -123,18 +123,6 @@ load(here::here("./input/data/proc/proc_w02.RData"))
 :::
 :::
 
-## **Escuela, desigualdad y recompensas** 
-::: {.incremental .highlight-last style="font-size: 100%;"}
-- Contexto escolar chileno caracterizado por amplia desigualdad, privatización y comodificación [@bellei_estudio_2013]
-
-- Falta de estudios sobre los criterios de justicia en la asignación de recompensas en el sistema educativo chileno por parte de las comunidades escolares
-
-- Observar la manera en que estudiantes operan sus **criterios de justicia** al momento de [***distribuir recompensas en el contexto escolar***]{.black} 
-
-- Experimento distribucional de encuestas [@gilgen_distributional_2020]
-
-:::
-
 ## **Meritocracia** 
 
 ::: {.incremental .highlight-last style="font-size: 100%;"}
@@ -148,6 +136,19 @@ load(here::here("./input/data/proc/proc_w02.RData"))
   * Responde al **principio de equidad** en la distribución de las notas [@resh_sense_2010], el cual se entiende como **justo** para dicha asignación cuando responde a criterios como el esfuerzo y el talento
 
 :::
+
+## **Escuela, desigualdad y recompensas** 
+::: {.incremental .highlight-last style="font-size: 100%;"}
+- Contexto escolar chileno caracterizado por amplia desigualdad, privatización y comodificación [@bellei_estudio_2013]
+
+- Falta de estudios sobre los criterios de justicia en la asignación de recompensas en el sistema educativo chileno por parte de las comunidades escolares
+
+- Observar la manera en que estudiantes operan sus **criterios de justicia** al momento de [***distribuir recompensas (notas/calificaciones) en el contexto escolar***]{.black} 
+
+- Experimento distribucional de encuestas [@gilgen_distributional_2020]
+
+:::
+
 
 #  Pregunta de investigación  
 
@@ -774,143 +775,6 @@ ggarrange(plot_ec, plot_es, common.legend = TRUE, nrow=2, legend = c("bottom", "
 :::
 :::
 
-## 
-
-::: {.columns}
-
-::: {.column width="20%"}
-
-![](images/caso4.png)
-
-:::
-
-::: {.column width="80%"}
-
-<br>
-
-```{r}
-datos$p1_2_o2 <- car::recode(datos$p1_2_o2,"1=1;2=1;3=2;4=2")
-
-datos$p1_2_o2 <- factor(datos$p1_2_o2, 
-                         levels=c(1,2),
-                         labels=c("En desacuerdo","De acuerdo"))
-
-datos$p2_2_o2 <- car::recode(datos$p2_2_o2,"1=1;2=1;3=2;4=2")
-
-datos$p2_2_o2 <- factor(datos$p2_2_o2, 
-                         levels=c(1,2),
-                         labels=c("En desacuerdo","De acuerdo"))
- 
-
-
-plot_tc <- datos %>% filter(p2_2_o2=="De acuerdo") %>% 
-  dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
-  plot_stackfrq(show.total=FALSE,
-                axis.labels=rev(c("A.", "B.", "C.", "D.")),
-    geom.colors = c("#E74C3C", "#2E86C1")) + 
-  theme_bw()+
-  theme(legend.position="bottom",
-        text=element_text(size=16))+
-  labs(
-    fill = "Cantidad décimas",
-    title = "Percepción talento en la escuela"
-  )
-
-plot_ts <- datos %>% filter(p1_2_o2=="De acuerdo") %>% 
-  dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
-  plot_stackfrq(show.total=FALSE,
-                axis.labels=rev(c("A.", "B.", "C.", "D.")),
-    geom.colors = c("#E74C3C", "#2E86C1")) + 
-  theme_bw()+
-  theme(legend.position="bottom",
-        text=element_text(size=16))+
-  labs(
-    fill = "Cantidad décimas",
-    title = "Percepción talento en la sociedad"
-  )
-```
-
-```{r}
-#| fig-width: 8
-#| fig-height: 5
-#| echo: false
-#| out-width: '95%'
-
-ggarrange(plot_tc, plot_ts, common.legend = TRUE, nrow=2, legend = c("bottom", "right"))
-
-```
-
-:::
-:::
-
-## 
-
-::: {.columns}
-
-::: {.column width="20%"}
-
-![](images/caso4.png)
-
-:::
-
-::: {.column width="80%"}
-
-<br>
-
-```{r}
-datos$p1_3_o2 <- car::recode(datos$p1_3_o2,"1=1;2=1;3=2;4=2")
-
-datos$p1_3_o2 <- factor(datos$p1_3_o2, 
-                         levels=c(1,2),
-                         labels=c("En desacuerdo","De acuerdo"))
-
-datos$p2_3_o2 <- car::recode(datos$p2_3_o2,"1=1;2=1;3=2;4=2")
-
-datos$p2_3_o2 <- factor(datos$p2_3_o2, 
-                         levels=c(1,2),
-                         labels=c("En desacuerdo","De acuerdo"))
- 
-
-
-plot_mc <- datos %>% filter(p2_3_o2=="De acuerdo") %>% 
-  dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
-  plot_stackfrq(show.total=FALSE,
-                axis.labels=rev(c("A.", "B.", "C.", "D.")),
-    geom.colors = c("#E74C3C", "#2E86C1")) + 
-  theme_bw()+
-  theme(legend.position="bottom",
-        text=element_text(size=16))+
-  labs(
-    fill = "Cantidad décimas",
-    title = "Percepción merecimiento en la escuela"
-  )
-
-plot_ms <- datos %>% filter(p1_1_o2=="De acuerdo") %>% 
-  dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
-  plot_stackfrq(show.total=FALSE,
-                axis.labels=rev(c("A.", "B.", "C.", "D.")),
-    geom.colors = c("#E74C3C", "#2E86C1")) + 
-  theme_bw()+
-  theme(legend.position="bottom",
-        text=element_text(size=16))+
-  labs(
-    fill = "Cantidad décimas",
-    title = "Percepción merecimiento en la sociedad"
-  )
-```
-
-```{r}
-#| fig-width: 8
-#| fig-height: 5
-#| echo: false
-#| out-width: '95%'
-
-ggarrange(plot_mc, plot_ms, common.legend = TRUE, nrow=2, legend = c("bottom", "right"))
-
-```
-
-:::
-:::
 ## **Discusión y conclusiones**
 
 ::: {.incremental .highlight-last style="font-size: 100%;"}
@@ -933,7 +797,9 @@ ggarrange(plot_mc, plot_ms, common.legend = TRUE, nrow=2, legend = c("bottom", "
 
 - En general, el apoyo a estudiantes más meritorios se observa *aún más* cuando se consideran sus creencias relacionadas al mérito en la **sociedad** que en la **escuela**. 
 
-- **Proximamente**: A la luz de estos resultados, se buscará identificar si las creencias meritocráticas de los/as estudiantes están relacionadas con dicha asignación.
+- Se observa una **asginación consensual** de las recompensas, premiando el esfuerzo con una baja consideración a las oportunidades estructurales. 
+
+- **Proximamente**: A la luz de estos resultados, se buscará profundizar si las creencias meritocráticas de los/as estudiantes están relacionadas con dicha asignación.
 
 :::
 
