@@ -137,6 +137,7 @@ datos <- datos %>%
 datos <- datos %>%
   mutate(prop_decimas = decimas_asignadas / total_decimas)
 
+summary(datos$prop_decimas)
 ```
 
 ## Modelos multinivel
@@ -147,9 +148,9 @@ datos <- datos %>%
 # m. multinivel
 
 # tratamiendo del dse como proporciones
-m1 <- lmer(prop_decimas ~ 1 + esfuerzo + contexto_hogar + dependencia + genero + educ_max + nivel_estudiante + libros_hogar + p1_1 + p1_2 + p2_1 + p2_2 + p2_3 + (1 | id_estudiante), data = datos)
+m1 <- lmer(prop_decimas ~ 1 + esfuerzo + contexto_hogar + genero + educ_max + nivel_estudiante + libros_hogar + p1_1 + p1_2 + p2_1 + p2_2 + p2_3 + (1 | id_estudiante), data = datos)
 
-summary(m1)
+#summary(m1)
 screenreg(m1)
 
 plot_model(m1, show.values = TRUE)+ theme_sjplot()
@@ -164,3 +165,47 @@ screenreg(m2)
 plot_model(m2, show.values = TRUE)+ theme_sjplot()
 
 ```
+
+
+```{r}
+#| echo: false
+
+# m. multinivel
+data <- datos %>% 
+  select(prop_decimas, decimas_asignadas, esfuerzo, contexto_hogar, genero, nivel_estudiante, libros_hogar, merit_esfuerzo=p1_1, merit_talento=p1_2, escuela_esfuerzo=p2_1, escuela_talento=p2_2, escuela_merecimiento=p2_3, id_estudiante) %>% 
+  na.omit()
+
+data$esfuerzo <- factor(data$esfuerzo,
+                        levels = c("Se esfuerza menos que la mayoría",
+                                   "Se esfuerza más que la mayoría"))
+
+table(data$esfuerzo)
+
+
+```
+
+```{r}
+#| echo: false
+#| results: 'asis'
+
+reg1 <- lmer(decimas_asignadas ~ esfuerzo + contexto_hogar + (1 | id_estudiante), data = data)
+reg2 <- lmer(decimas_asignadas ~ esfuerzo + contexto_hogar + genero + nivel_estudiante + libros_hogar + (1 | id_estudiante), data = data)
+reg3 <- lmer(decimas_asignadas ~ esfuerzo + contexto_hogar + genero + nivel_estudiante + libros_hogar + merit_esfuerzo + merit_talento + escuela_esfuerzo + escuela_talento + escuela_merecimiento + (1 | id_estudiante), data = data)
+reg4 <- lmer(decimas_asignadas ~ esfuerzo + contexto_hogar + genero + nivel_estudiante + libros_hogar + merit_esfuerzo + merit_talento + escuela_esfuerzo + escuela_talento + escuela_merecimiento + (1 | id_estudiante), data = data)
+
+texreg::htmlreg(list(reg1, reg2, reg3))
+```
+
+
+```{r}
+#| echo: false
+#| results: 'asis'
+
+reg1 <- lmer(prop_decimas ~ esfuerzo + contexto_hogar + (1 | id_estudiante), data = data)
+reg2 <- lmer(prop_decimas ~ esfuerzo + contexto_hogar + genero + nivel_estudiante + libros_hogar + (1 | id_estudiante), data = data)
+reg3 <- lmer(prop_decimas ~ esfuerzo + contexto_hogar + genero + nivel_estudiante + libros_hogar + merit_esfuerzo + merit_talento + escuela_esfuerzo + escuela_talento + escuela_merecimiento + (1 | id_estudiante), data = data)
+reg4 <- lmer(prop_decimas ~ esfuerzo + contexto_hogar + genero + nivel_estudiante + libros_hogar + merit_esfuerzo + merit_talento + escuela_esfuerzo + escuela_talento + escuela_merecimiento + (1 | id_estudiante), data = data)
+
+texreg::htmlreg(list(reg1, reg2, reg3))
+```
+
