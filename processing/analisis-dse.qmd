@@ -1,7 +1,7 @@
 ---
 title: "Análisis DSE: multinivel"
 author: "Equipo EDUMER"
-fontsize: 12pt
+fontsize: 14pt
 #bibliography: "../input/mini-proyecto.bib"
 #csl: "input/bib/apa6.csl"
 format:
@@ -26,77 +26,10 @@ lang: es
 pacman::p_load(dplyr, sjPlot, stargazer, kableExtra, texreg, haven, sjlabelled, ggplot2, summarytools, ggtext, ggpubr, hrbrthemes, tidyr, stringr, sjmisc, ggalluvial, shadowtext, sjmisc, lme4, Matrix)
 
 # cargamos datos long 
-load("../input/data/original/edumer_students_long.RData")
-
-# Codificamos los valores 99-88 como missing para todas las variables
-datos <- edumer_students_long %>% set_na(., na = c(99, 88)) %>% filter(ola == 2)
-```
-
-```{r}
-#| echo: false
-
-# crear variable dependencia 
-
-datos <- datos %>%
-  mutate(dependencia = case_when(
-    d2 %in% c(2, 3, 4, 7, 8, 10, 11) ~ 1,
-    d2 == 5 ~ 2,
-    d2 == 6 ~ 3,
-    TRUE ~ NA_integer_
-  ))
-
-datos$dependencia <- factor(datos$dependencia, 
-                                               levels=c(1,2,3),
-                                               labels=c(
-                                                 "Colegio Particular Subvencionado",
-                                                 "Colegio Municipal",
-                                                 "Colegio Privado"))
-
-# nivel educ-hogar
-datos <- datos %>%
-  mutate(educ_max = case_when(
-    !is.na(p26) & is.na(p27) ~ p26,
-    is.na(p26) & !is.na(p27) ~ p27,
-    !is.na(p26) & !is.na(p27) ~ pmax(p26, p27, na.rm = TRUE),
-    TRUE ~ NA_real_
-  )) 
-
-datos$educ_max <- car::recode(datos$educ_max, "1=1; 2=1; 3=1; 4=2; 5=2; 6=2")
-datos$educ_max <- factor(datos$educ_max, 
-                              levels=c(1,2),
-                              labels=c("Enseñanza media o menos","Estudios superiores"))
-
-
-
-# libros-hogar
-
-datos$p30 <- car::recode(datos$p30,"1=1;2=1;3=1;4=2;5=2;6=2")
-datos$p30 <- factor(datos$p30,
-                                 levels=c(1,2),
-                                 labels=c("Menos de 25 libros","Más de 25 libros"))
-
-
-
-# genero
-datos$p20 <- car::recode(datos$p20, "3=NA")
-datos$p20 <- factor(datos$p20,
-                      levels=c(1,2),
-                      labels=c("Hombre","Mujer"))
-
-datos <- datos %>% rename(libros_hogar = p30, 
-                              genero = p20) 
-
-
-# curso 
-datos$nivel_estudiante <- factor(datos$nivel_estudiante,
-                      levels=c(1,2),
-                      labels=c("Básica","Media"))
-
-# meritocracia 
+load("../input/data/proc/proc_w02.RData")
 
 ```
 
-## Preparación de los datos DSE
 
 ```{r}
 #| echo: false
@@ -112,74 +45,168 @@ diccionario_viñetas <- tibble(
 
 
 # paso 2: 
-datos <- datos %>%
+datos_viñetas <- datos %>%
   pivot_longer(cols = starts_with("exp_t4_"),
                names_to = "variable", 
                values_to = "decimas_asignadas")
 
+
 # paso 3: 
-datos <- datos %>%
+datos_viñetas <- datos_viñetas %>%
   left_join(diccionario_viñetas, by = "variable")
 
 # paso 4: se distinguen las dos caracteristicas que compone la viñeta en variables individuales
-datos <- datos %>%
+datos_viñetas <- datos_viñetas %>%
   separate(descripcion_viñeta, into = c("esfuerzo", "contexto_hogar"), sep = " - ")
 
 #d <- datos %>% select(id_estudiante, variable, decimas_asignadas, esfuerzo, contexto_hogar, prop_decimas)
 
 
 # calcular las décimas como proporciones 
-datos <- datos %>%
+datos_viñetas <- datos_viñetas %>%
   group_by(id_estudiante) %>%
   mutate(total_decimas = sum(decimas_asignadas)) %>%
   ungroup()
 
-datos <- datos %>%
+datos_viñetas <- datos_viñetas %>%
   mutate(prop_decimas = decimas_asignadas / total_decimas)
 
-summary(datos$prop_decimas)
+#summary(datos$prop_decimas)
 ```
+
+## Univariados
+
+```{r}
+#| echo: false
+#| label: univariados
+
+print(summarytools::dfSummary(datos), method="render")
+```
+
+
+## Correlaciones 
+
+### Proporciones
+
+```{r}
+#| echo: false
+#| label: correlacion con proporciones
+#| message: false
+#| warning: false
+
+M1 <- datos_viñetas %>% select(genero, curso, 
+                                                merit_esfuerzo,
+                              merit_talento,
+                              school_esfuerzo,
+                              school_talento,
+                              school_merecimiento, esfuerzo, 
+                              contexto_hogar, prop_decimas) %>% na.omit() %>%  mutate_all(~(as.numeric(.)))
+
+M1 <- cor(M1)
+
+#Plot the matrix using corrplot
+ #corrplot::corrplot(M1,
+                #   method = "color",
+                 #  addCoef.col = "black",
+                  # type = "upper",
+                   #tl.col = "black",
+                  # col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+                  # bg = "white",
+                  # na.label = "-")
+ 
+ sjPlot::tab_corr(M1, 
+                 triangle = "lower")
+
+```
+
+
+### Décimas
+
+```{r}
+#| echo: false
+#| label: correlacion con décimas
+
+M <- datos_viñetas %>% select(genero, curso, 
+                                                            merit_esfuerzo,
+                              merit_talento,
+                              school_esfuerzo,
+                              school_talento,
+                              school_merecimiento, decimas_asignadas) %>% na.omit() %>%  mutate_all(~(as.numeric(.)))
+
+M <- cor(M)
+
+#Plot the matrix using corrplot
+ #corrplot::corrplot(M,
+  #                 method = "color",
+   #                addCoef.col = "black",
+    #               type = "upper",
+     #              tl.col = "black",
+      #             col = colorRampPalette(c("#E16462", "white", "#0D0887"))(12),
+                #   bg = "white",
+                 #  na.label = "-")
+ 
+ sjPlot::tab_corr(M, 
+                 triangle = "lower")
+
+```
+
+
+## Modelos simples
+
+### Proporciones 
+
+```{r}
+#| echo: false
+
+
+```
+
+
+### Décimas
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+r1 <- lmer(decimas_asignadas ~ genero +  (1 | id_estudiante), data = datos_viñetas)
+
+r2 <- lmer(decimas_asignadas ~ curso + (1 | id_estudiante), data = datos_viñetas)
+
+r3 <- lmer(decimas_asignadas ~ libros_hogar + (1 | id_estudiante), data = datos_viñetas)
+
+r4 <- lmer(decimas_asignadas ~ merit_esfuerzo + (1 | id_estudiante), data = datos_viñetas)
+
+r5 <- lmer(decimas_asignadas ~ merit_talento + (1 | id_estudiante), data = datos_viñetas)
+
+r6 <- lmer(decimas_asignadas ~ school_esfuerzo + (1 | id_estudiante), data = datos_viñetas)
+
+r7 <- lmer(decimas_asignadas ~ school_talento + (1 | id_estudiante), data = datos_viñetas)
+
+r8 <- lmer(decimas_asignadas ~ school_merecimiento + (1 | id_estudiante), data = datos_viñetas)
+
+#exreg::htmlreg(list(r1, r2, r3, r4, r5, r6, r7,r8))
+
+sjPlot::tab_model(list(r1, r2, r3, r4, r5, r6, r7,r8), show.ci=FALSE)
+```
+
 
 ## Modelos multinivel
 
-```{r}
-#| echo: false
-
-# m. multinivel
-
-# tratamiendo del dse como proporciones
-m1 <- lmer(prop_decimas ~ 1 + esfuerzo + contexto_hogar + genero + educ_max + nivel_estudiante + libros_hogar + p1_1 + p1_2 + p2_1 + p2_2 + p2_3 + (1 | id_estudiante), data = datos)
-
-#summary(m1)
-screenreg(m1)
-
-plot_model(m1, show.values = TRUE)+ theme_sjplot()
-
-# tratamiendo el dse con las decimas 
-
-m2 <- lmer(decimas_asignadas ~ 1 + esfuerzo + contexto_hogar + dependencia + genero + educ_max + nivel_estudiante + libros_hogar + p1_1 + p1_2 + p2_1 + p2_2 + p2_3 + (1 | id_estudiante), data = datos)
-
-summary(m2)
-screenreg(m2)
-
-plot_model(m2, show.values = TRUE)+ theme_sjplot()
-
-```
-
 
 ```{r}
 #| echo: false
 
 # m. multinivel
-data <- datos %>% 
-  select(prop_decimas, decimas_asignadas, esfuerzo, contexto_hogar, genero, nivel_estudiante, libros_hogar, merit_esfuerzo=p1_1, merit_talento=p1_2, escuela_esfuerzo=p2_1, escuela_talento=p2_2, escuela_merecimiento=p2_3, id_estudiante) %>% 
-  na.omit()
+#data <- datos_viñetas %>% 
+ # select(prop_decimas, decimas_asignadas, esfuerzo, contexto_hogar, genero, curso, libros_hogar, merit_esfuerzo=p1_1, merit_talento=p1_2, escuela_esfuerzo=p2_1, escuela_talento=p2_2, escuela_merecimiento=p2_3, id_estudiante) %>% 
+ # na.omit()
 
-data$esfuerzo <- factor(data$esfuerzo,
+datos_viñetas$esfuerzo <- factor(datos_viñetas$esfuerzo,
                         levels = c("Se esfuerza menos que la mayoría",
                                    "Se esfuerza más que la mayoría"))
 
-table(data$esfuerzo)
+table(datos_viñetas$esfuerzo)
 
 
 ```
@@ -188,23 +215,28 @@ table(data$esfuerzo)
 #| echo: false
 #| results: 'asis'
 
-reg1 <- lmer(decimas_asignadas ~ esfuerzo + contexto_hogar + (1 | id_estudiante), data = data)
-reg2 <- lmer(decimas_asignadas ~ esfuerzo + contexto_hogar + genero + nivel_estudiante + libros_hogar + (1 | id_estudiante), data = data)
-reg3 <- lmer(decimas_asignadas ~ esfuerzo + contexto_hogar + genero + nivel_estudiante + libros_hogar + merit_esfuerzo + merit_talento + escuela_esfuerzo + escuela_talento + escuela_merecimiento + (1 | id_estudiante), data = data)
-reg4 <- lmer(decimas_asignadas ~ esfuerzo + contexto_hogar + genero + nivel_estudiante + libros_hogar + merit_esfuerzo + merit_talento + escuela_esfuerzo + escuela_talento + escuela_merecimiento + (1 | id_estudiante), data = data)
+reg1 <- lmer(decimas_asignadas ~ esfuerzo + contexto_hogar + (1 | id_estudiante), data = datos_viñetas)
+
+reg1 <- lmer(decimas_asignadas ~ esfuerzo + contexto_hogar + (1 | id_estudiante), data = datos_viñetas)
+
+reg2 <- lmer(decimas_asignadas ~ esfuerzo + contexto_hogar + genero + curso + libros_hogar + (1 | id_estudiante), data = datos_viñetas)
+reg3 <- lmer(decimas_asignadas ~ esfuerzo + contexto_hogar + genero + curso + libros_hogar + merit_esfuerzo + merit_talento + school_esfuerzo + school_talento + school_merecimiento + (1 | id_estudiante), data = datos_viñetas)
+reg4 <- lmer(decimas_asignadas ~ esfuerzo + contexto_hogar + genero + curso + libros_hogar + merit_esfuerzo + merit_talento + school_esfuerzo + school_talento + school_merecimiento + (1 | id_estudiante), data = datos_viñetas)
 
 texreg::htmlreg(list(reg1, reg2, reg3))
 ```
 
-
 ```{r}
 #| echo: false
 #| results: 'asis'
 
-reg1 <- lmer(prop_decimas ~ esfuerzo + contexto_hogar + (1 | id_estudiante), data = data)
-reg2 <- lmer(prop_decimas ~ esfuerzo + contexto_hogar + genero + nivel_estudiante + libros_hogar + (1 | id_estudiante), data = data)
-reg3 <- lmer(prop_decimas ~ esfuerzo + contexto_hogar + genero + nivel_estudiante + libros_hogar + merit_esfuerzo + merit_talento + escuela_esfuerzo + escuela_talento + escuela_merecimiento + (1 | id_estudiante), data = data)
-reg4 <- lmer(prop_decimas ~ esfuerzo + contexto_hogar + genero + nivel_estudiante + libros_hogar + merit_esfuerzo + merit_talento + escuela_esfuerzo + escuela_talento + escuela_merecimiento + (1 | id_estudiante), data = data)
+reg1 <- lmer(prop_decimas ~ esfuerzo + contexto_hogar + (1 | id_estudiante), data = datos_viñetas)
+
+reg2 <- lmer(prop_decimas ~ esfuerzo + contexto_hogar + genero + curso + libros_hogar + (1 | id_estudiante), data = datos_viñetas)
+
+reg3 <- lmer(prop_decimas ~ esfuerzo + contexto_hogar + genero + curso + libros_hogar + merit_esfuerzo + merit_talento +school_esfuerzo + school_talento + school_merecimiento + (1 | id_estudiante), data = datos_viñetas)
+
+reg4 <- lmer(prop_decimas ~ esfuerzo + contexto_hogar + genero + curso + libros_hogar + merit_esfuerzo + merit_talento + school_esfuerzo + school_talento + school_merecimiento + (1 | id_estudiante), data = datos_viñetas)
 
 texreg::htmlreg(list(reg1, reg2, reg3))
 ```

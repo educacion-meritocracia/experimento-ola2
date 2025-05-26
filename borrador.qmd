@@ -1,0 +1,520 @@
+---
+title: "Borrador gráficos"
+format: html
+editor: visual
+---
+
+```{r}
+#| label: packages
+#| include: false
+
+if (! require("pacman")) install.packages("pacman")
+
+pacman::p_load(tidyverse, dplyr, sjmisc, car, sjlabelled, stargazer, haven, sjPlot, ggplot2, tidyr, stringr, corrplot, summarytools, ggdist, ggpubr)
+
+feq(options(scipen=999)
+rm(list = ls())
+```
+
+
+```{r}
+#| label: data
+#| include: false
+#| echo: false
+
+load(here::here("./input/data/proc/proc_w02.RData"))
+
+```
+
+```{r}
+#| echo: false
+#test_nsea <- chisq.test(datos$nse, datos$exp_t4_a_rec) #no significativo
+#gginference::ggchisqtest(test_nsea)
+#test_nseb <- chisq.test(datos$nse, datos$exp_t4_b_rec)
+#test_nsc <- chisq.test(datos$nse, datos$exp_t4_c_rec)
+#test_nsd <- chisq.test(datos$nse, datos$exp_t4_d_rec)
+
+#table(datos$nse, datos$exp_t4_d_rec) %>% prop.test()
+
+#test_nsege <- chisq.test(datos$genero,datos$exp_t4_a) #no sig
+#test_nsecu <- chisq.test(datos$curso,datos$exp_t4_a_rec)
+#test_nsede <- chisq.test(datos$dependencia,datos$exp_t4_a_rec)
+#test_nseedu <- chisq.test(datos$educ_max,datos$exp_t4_a_rec)
+#test_nselib <- chisq.test(datos$libros_hogar,datos$exp_t4_a_rec)
+
+```
+
+```{r}
+#| echo: false
+datos$exp_t4_a_rec <- car::recode(datos$exp_t4_a, "c(0,1,2)='No aprueba'; else='Aprueba'",
+                                                  as.factor=TRUE,
+                                                  levels = c("No aprueba", "Aprueba"))
+datos$exp_t4_b_rec <- car::recode(datos$exp_t4_b, "c(0,1,2)='No aprueba'; else='Aprueba'",
+                                                  as.factor=TRUE,
+                                                  levels = c("No aprueba", "Aprueba"))
+datos$exp_t4_c_rec <- car::recode(datos$exp_t4_c, "c(0,1,2)='No aprueba'; else='Aprueba'",
+                                                  as.factor=TRUE,
+                                                  levels = c("No aprueba", "Aprueba"))
+datos$exp_t4_d_rec <- car::recode(datos$exp_t4_d, "c(0,1,2)='No aprueba'; else='Aprueba'",
+                                                  as.factor=TRUE,
+                                                  levels = c("No aprueba", "Aprueba"))
+```
+
+## sociedad
+
+### Esfuerzo
+
+```{r}
+#| echo: false
+datos$p1_1_o2 <- car::recode(datos$p1_1_o2,"1=1;2=1;3=2;4=2")
+
+datos$p1_1_o2 <- factor(datos$p1_1_o2, 
+                         levels=c(1,2),
+                         labels=c("En desacuerdo","De acuerdo"))
+
+
+plot_1 <- datos %>% filter(p1_1_o2=="En desacuerdo") %>% 
+  dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
+  plot_stackfrq(show.total=FALSE,
+                axis.labels=rev(c("A.", "B.", "C.", "D.")),
+    geom.colors = c("#E74C3C", "#2E86C1"
+    )) +
+  theme_bw()+
+  theme(legend.position="bottom",
+        text=element_text(size=16))+
+  labs(
+    fill = "Cantidad décimas",
+    title = "En desacuerdo"
+  )
+
+plot_2 <- datos %>% filter(p1_1_o2=="De acuerdo") %>% 
+  dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
+  plot_stackfrq(show.total=FALSE,
+                axis.labels=rev(c("A.", "B.", "C.", "D.")),
+    geom.colors = c("#E74C3C", "#2E86C1")) + 
+  theme_bw()+
+  theme(legend.position="bottom",
+        text=element_text(size=16))+
+  labs(
+    fill = "Cantidad décimas",
+    title = "De acuerdo"
+  )
+
+```
+
+```{r}
+#| fig-width: 8
+#| fig-height: 5
+#| echo: false
+#| out-width: '95%'
+
+ggarrange(plot_1, plot_2, common.legend = TRUE, nrow=2, legend = c("bottom", "right"))
+
+```
+
+#### Talento
+```{r}
+#| echo: false
+
+datos$p1_2_o2 <- car::recode(datos$p1_2_o2,"1=1;2=1;3=2;4=2")
+
+datos$p1_2_o2 <- factor(datos$p1_2_o2, 
+                         levels=c(1,2),
+                         labels=c("En desacuerdo","De acuerdo"))
+
+
+plot_1 <- datos %>% filter(p1_2_o2=="En desacuerdo") %>% 
+  dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
+  plot_stackfrq(show.total=FALSE,
+                axis.labels=rev(c("A.", "B.", "C.", "D.")),
+    geom.colors = c("#E74C3C", "#2E86C1"
+    )) +
+  theme_bw()+
+  theme(legend.position="bottom",
+        text=element_text(size=16))+
+  labs(
+    fill = "Cantidad décimas",
+    title = "En desacuerdo"
+  )
+
+plot_2 <- datos %>% filter(p1_2_o2=="De acuerdo") %>% 
+  dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
+  plot_stackfrq(show.total=FALSE,
+                axis.labels=rev(c("A.", "B.", "C.", "D.")),
+    geom.colors = c("#E74C3C", "#2E86C1")) + 
+  theme_bw()+
+  theme(legend.position="bottom",
+        text=element_text(size=16))+
+  labs(
+    fill = "Cantidad décimas",
+    title = "De acuerdo"
+  )
+
+```
+
+```{r}
+#| fig-width: 8
+#| fig-height: 5
+#| out-width: '95%'
+
+ggarrange(plot_1, plot_2, common.legend = TRUE, nrow=2, legend = c("bottom", "right"))
+
+```
+
+
+#### Merecimiento
+```{r}
+#| echo: false
+datos$p1_3_o2 <- car::recode(datos$p1_3_o2,"1=1;2=1;3=2;4=2")
+
+datos$p1_3_o2 <- factor(datos$p1_3_o2, 
+                         levels=c(1,2),
+                         labels=c("En desacuerdo","De acuerdo"))
+
+
+plot_1 <- datos %>% filter(p1_3_o2=="En desacuerdo") %>% 
+  dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
+  plot_stackfrq(show.total=FALSE,
+                axis.labels=rev(c("A.", "B.", "C.", "D.")),
+    geom.colors = c("#E74C3C", "#2E86C1"
+    )) +
+  theme_bw()+
+  theme(legend.position="bottom",
+        text=element_text(size=16))+
+  labs(
+    fill = "Cantidad décimas",
+    title = "En desacuerdo"
+  )
+
+plot_2 <- datos %>% filter(p1_3_o2=="De acuerdo") %>% 
+  dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
+  plot_stackfrq(show.total=FALSE,
+                axis.labels=rev(c("A.", "B.", "C.", "D.")),
+    geom.colors = c("#E74C3C", "#2E86C1")) + 
+  theme_bw()+
+  theme(legend.position="bottom",
+        text=element_text(size=16))+
+  labs(
+    fill = "Cantidad décimas",
+    title = "De acuerdo"
+  )
+
+```
+
+```{r}
+#| fig-width: 8
+#| fig-height: 5
+#| out-width: '95%'
+#| echo: false
+
+ggarrange(plot_1, plot_2, common.legend = TRUE, nrow=2, legend = c("bottom", "right"))
+
+```
+
+
+## escuela
+
+### Esfuerzo
+```{r}
+#| echo: false
+datos$p2_1_o2 <- car::recode(datos$p2_1_o2,"1=1;2=1;3=2;4=2")
+
+datos$p2_1_o2 <- factor(datos$p2_1_o2, 
+                         levels=c(1,2),
+                         labels=c("En desacuerdo","De acuerdo"))
+
+
+plot_1 <- datos %>% filter(p2_1_o2=="En desacuerdo") %>% 
+  dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
+  plot_stackfrq(show.total=FALSE,
+                axis.labels=rev(c("A.", "B.", "C.", "D.")),
+    geom.colors = c("#E74C3C", "#2E86C1"
+    )) +
+  theme_bw()+
+  theme(legend.position="bottom",
+        text=element_text(size=16))+
+  labs(
+    fill = "Cantidad décimas",
+    title = "En desacuerdo"
+  )
+
+plot_2 <- datos %>% filter(p2_1_o2=="De acuerdo") %>% 
+  dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
+  plot_stackfrq(show.total=FALSE,
+                axis.labels=rev(c("A.", "B.", "C.", "D.")),
+    geom.colors = c("#E74C3C", "#2E86C1")) + 
+  theme_bw()+
+  theme(legend.position="bottom",
+        text=element_text(size=16))+
+  labs(
+    fill = "Cantidad décimas",
+    title = "De acuerdo"
+  )
+
+```
+
+```{r}
+#| fig-width: 8
+#| fig-height: 5
+#| out-width: '95%'
+#| echo: false
+
+ggarrange(plot_1, plot_2, common.legend = TRUE, nrow=2, legend = c("bottom", "right"))
+
+```
+
+
+### Talento
+```{r}
+#| echo: false
+datos$p2_2_o2 <- car::recode(datos$p2_2_o2,"1=1;2=1;3=2;4=2")
+
+datos$p2_2_o2 <- factor(datos$p2_2_o2, 
+                         levels=c(1,2),
+                         labels=c("En desacuerdo","De acuerdo"))
+
+
+plot_1 <- datos %>% filter(p2_2_o2=="En desacuerdo") %>% 
+  dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
+  plot_stackfrq(show.total=FALSE,
+                axis.labels=rev(c("A.", "B.", "C.", "D.")),
+    geom.colors = c("#E74C3C", "#2E86C1"
+    )) +
+  theme_bw()+
+  theme(legend.position="bottom",
+        text=element_text(size=16))+
+  labs(
+    fill = "Cantidad décimas",
+    title = "En desacuerdo"
+  )
+
+plot_2 <- datos %>% filter(p2_2_o2=="De acuerdo") %>% 
+  dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
+  plot_stackfrq(show.total=FALSE,
+                axis.labels=rev(c("A.", "B.", "C.", "D.")),
+    geom.colors = c("#E74C3C", "#2E86C1")) + 
+  theme_bw()+
+  theme(legend.position="bottom",
+        text=element_text(size=16))+
+  labs(
+    fill = "Cantidad décimas",
+    title = "De acuerdo"
+  )
+
+```
+
+```{r}
+#| fig-width: 8
+#| fig-height: 5
+#| out-width: '95%'
+#| echo: false
+
+ggarrange(plot_1, plot_2, common.legend = TRUE, nrow=2, legend = c("bottom", "right"))
+
+```
+
+
+### Merecimiento 
+```{r}
+#| echo: false
+datos$p2_3_o2 <- car::recode(datos$p2_3_o2,"1=1;2=1;3=2;4=2")
+
+datos$p2_3_o2 <- factor(datos$p2_3_o2, 
+                         levels=c(1,2),
+                         labels=c("En desacuerdo","De acuerdo"))
+
+
+plot_1 <- datos %>% filter(p2_3_o2=="En desacuerdo") %>% 
+  dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
+  plot_stackfrq(show.total=FALSE,
+                axis.labels=rev(c("A.", "B.", "C.", "D.")),
+    geom.colors = c("#E74C3C", "#2E86C1"
+    )) +
+  theme_bw()+
+  theme(legend.position="bottom",
+        text=element_text(size=16))+
+  labs(
+    fill = "Cantidad décimas",
+    title = "En desacuerdo"
+  )
+
+plot_2 <- datos %>% filter(p2_3_o2=="De acuerdo") %>% 
+  dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
+  plot_stackfrq(show.total=FALSE,
+                axis.labels=rev(c("A.", "B.", "C.", "D.")),
+    geom.colors = c("#E74C3C", "#2E86C1")) + 
+  theme_bw()+
+  theme(legend.position="bottom",
+        text=element_text(size=16))+
+  labs(
+    fill = "Cantidad décimas",
+    title = "De acuerdo"
+  )
+
+```
+
+```{r}
+#| fig-width: 8
+#| fig-height: 5
+#| out-width: '95%'
+#| echo: false
+
+ggarrange(plot_1, plot_2, common.legend = TRUE, nrow=2, legend = c("bottom", "right"))
+
+```
+## Notas
+
+```{r}
+#| echo: false
+
+# nota 6 
+
+plot_n6 <- datos %>% filter(p4_o2==6.00) %>% 
+  dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
+  plot_stackfrq(show.total=FALSE,
+                axis.labels=rev(c("A.", "B.", "C.", "D.")),
+    geom.colors = c("#E74C3C", "#2E86C1"
+    )) +
+  theme_bw()+
+  theme(legend.position="bottom",
+        text=element_text(size=16))+
+  labs(
+    fill = "Cantidad décimas",
+    title = "Estudiantes que obtuvieron Nota 6"
+  )
+
+plot_n5 <- datos %>% filter(p4_o2==5.00) %>% 
+  dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
+  plot_stackfrq(show.total=FALSE,
+                axis.labels=rev(c("A.", "B.", "C.", "D.")),
+    geom.colors = c("#E74C3C", "#2E86C1")) + 
+  theme_bw()+
+  theme(legend.position="bottom",
+        text=element_text(size=16))+
+  labs(
+    fill = "Cantidad décimas",
+    title = "Estudiantes que obtuvieron Nota 5"
+  )
+
+plot_n7 <- datos %>% filter(p4_o2==7.00) %>% 
+  dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
+  plot_stackfrq(show.total=FALSE,
+                axis.labels=rev(c("A.", "B.", "C.", "D.")),
+    geom.colors = c("#E74C3C", "#2E86C1")) + 
+  theme_bw()+
+  theme(legend.position="bottom",
+        text=element_text(size=16))+
+  labs(
+    fill = "Cantidad décimas",
+    title = "Estudiantes que obtuvieron Nota 7"
+  )
+
+plot_n4 <- datos %>% filter(p4_o2==4.00) %>% 
+  dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
+  plot_stackfrq(show.total=FALSE,
+                axis.labels=rev(c("A.", "B.", "C.", "D.")),
+    geom.colors = c("#E74C3C", "#2E86C1")) + 
+  theme_bw()+
+  theme(legend.position="bottom",
+        text=element_text(size=16))+
+  labs(
+    fill = "Cantidad décimas",
+    title = "Estudiantes que obtuvieron Nota 4"
+  )
+
+
+
+```
+
+```{r}
+#| fig-width: 8
+#| fig-height: 5
+#| out-width: '95%'
+#| echo: false
+
+ggarrange(plot_n5, plot_n6, common.legend = TRUE, nrow=2, legend = c("bottom", "right"))
+
+ggarrange(plot_n4, plot_n7, common.legend = TRUE, nrow=2, legend = c("bottom", "right"))
+
+```
+
+### Nota aprueba y desaprueba
+
+```{r}
+#| echo: false
+
+# solo hay una persona con nota 3 
+datos$p4_o2 <- car::recode(datos$p4_o2,"1=1;2=1;3=2;4=2")
+
+datos$p4_o2 <- factor(datos$p4_o2, 
+                         levels=c(1,2),
+                         labels=c("En desacuerdo","De acuerdo"))
+
+
+
+```
+
+### Estatus
+```{r}
+
+#| echo: false
+
+datos <- datos %>% mutate(nse = case_when(
+  libros_hogar == "Menos de 25 libros"  ~ 1,
+  educ_max == "Enseñanza media o menos"  ~ 1,
+  libros_hogar == "Más de 25 libros"  ~ 2,
+  educ_max == "Estudios superiores"  ~ 2,
+    TRUE ~ NA_integer_
+  ))
+
+datos <- datos %>% mutate(estatus = case_when(
+  nse == 1  ~ 1,
+  genero == "Mujer"  ~ 1,
+  nse == 2  ~ 2,
+  genero == "Hombre"  ~ 2,
+    TRUE ~ NA_integer_
+  ))
+
+
+
+```
+
+```{r}
+#| echo: false
+plot_1 <- datos %>% filter(estatus==1) %>% 
+  dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
+  plot_stackfrq(show.total=FALSE,
+                axis.labels=rev(c("A.", "B.", "C.", "D.")),
+    geom.colors = c("#E74C3C", "#2E86C1"
+    )) +
+  theme_bw()+
+  theme(legend.position="bottom",
+        text=element_text(size=16))+
+  labs(
+    fill = "Cantidad décimas",
+    title = "Estatus bajo"
+  )
+
+plot_2 <- datos %>% filter(estatus==2) %>% 
+  dplyr::select(exp_t4_d_rec:exp_t4_a_rec) %>%
+  plot_stackfrq(show.total=FALSE,
+                axis.labels=rev(c("A.", "B.", "C.", "D.")),
+    geom.colors = c("#E74C3C", "#2E86C1")) + 
+  theme_bw()+
+  theme(legend.position="bottom",
+        text=element_text(size=16))+
+  labs(
+    fill = "Cantidad décimas",
+    title = "Estatus alto"
+  )
+
+```
+
+```{r}
+#| fig-width: 8
+#| fig-height: 5
+#| out-width: '95%'
+#| echo: false
+
+ggarrange(plot_1, plot_2, common.legend = TRUE, nrow=2, legend = c("bottom", "right"))
+```

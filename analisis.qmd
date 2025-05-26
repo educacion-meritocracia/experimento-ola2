@@ -1,0 +1,31 @@
+---
+title: "Análisis"
+author: "Edumer"
+fontsize: 12pt
+#bibliography: "../input/mini-proyecto.bib"
+#csl: "input/bib/apa6.csl"
+format:
+  html:
+    toc: true
+    toc-location: right
+    toc-depth: 6
+    toc-expand: 6
+    toc-title: Contenidos
+    number-sections: false
+    number-depth: 6
+    theme: 
+    - edumer.scss
+    - sandstone
+    title-block-banner: true
+editor: visual
+lang: es
+---
+
+```{r, data, echo=FALSE}
+
+# Cargar paquetes
+pacman::p_load(dplyr, sjPlot, stargazer, kableExtra, texreg, haven, sjlabelled, ggplot2, summarytools, ggtext, ggpubr, hrbrthemes, tidyr, stringr, sjmisc, ggalluvial, shadowtext, sjmisc)
+
+
+# Cargar base 
+
