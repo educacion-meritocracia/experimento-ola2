@@ -10,8 +10,10 @@ datos <- db_students_w02 %>% set_na(., na = c(99, 88))
 
 # seleccionar 
 
-datos <- datos %>% select(p4_o2,
-                          d2_o2, 
+datos <- datos %>% select(nota = p4_o2,
+                         merecimiento_nota = p5_o2,
+                         nota_justa = p6_o2,
+                         d2_o2, 
                           p17_o2, 
                           p18_o2, 
                           p14_o2, 
@@ -26,7 +28,17 @@ datos <- datos %>% select(p4_o2,
                           exp_t4_b, 
                           exp_t4_c, 
                           exp_t4_d,
-                          id_estudiante)
+                          exp_t2_a,
+                          exp_t2_b,
+                          exp_t3_a,
+                          exp_t3_b,
+                          id_estudiante,
+                         exp_t1_a,
+                         exp_t1_b,
+                         exp_t2_a,
+                         exp_t2_b,
+                         exp_t3_a,
+                         exp_t3_b)
 
 # crear variable dependencia 
 
@@ -44,6 +56,10 @@ datos$dependencia <- factor(datos$dependencia,
                               "Colegio Particular Subvencionado",
                               "Colegio Municipal"))
 
+
+datos <- datos %>%
+  mutate(dependencia_rec = ifelse(dependencia == "Colegio Municipal", 1, 0))
+
 # nivel educ-hogar
 datos <- datos %>%
   mutate(educ_max = case_when(
@@ -55,10 +71,14 @@ datos <- datos %>%
 
 
 datos$educ_max <- car::recode(datos$educ_max, "1=1; 2=1; 3=1; 4=2; 5=2; 6=2")
+
+
 datos$educ_max <- factor(datos$educ_max, 
                          levels=c(1,2),
                          labels=c("Enseñanza media o menos","Estudios superiores"))
 
+datos <- datos %>%
+  mutate(educ_max_rec = ifelse(educ_max == "Estudios superiores", 1, 0))
 
 
 
@@ -66,10 +86,14 @@ datos$educ_max <- factor(datos$educ_max,
 
 datos$p19_o2 <- car::recode(datos$p19_o2,"1=1;2=1;3=1;4=2;5=2;6=2")
 
+
 datos$p19_o2 <- factor(datos$p19_o2,
                     levels=c(1,2),
                     labels=c("Menos de 25 libros","Más de 25 libros"))
 
+
+datos <- datos %>%
+  mutate(libros_rec = ifelse(p19_o2 == "Más de 25 libros", 1, 0))
 
 
 # genero
@@ -79,6 +103,11 @@ datos$p14_o2 <- factor(datos$p14_o2,
                     levels=c(1,2),
                     labels=c("Hombre","Mujer"))
 
+
+
+
+datos <- datos %>%
+  mutate(genero_rec = ifelse(p14_o2 == "Mujer", 1, 0))
 
 
 
@@ -92,72 +121,18 @@ datos <- datos %>% rename(libros_hogar = p19_o2,
                           genero = p14_o2,
                           curso = nivel_estudiante_o2) 
 
-
-# meritocracia dummies
-
-
-datos <- fastDummies::dummy_cols(datos,select_columns = "merit_esfuerzo", #remove_first_dummy = TRUE
-)
-
-datos$merit_esfuerzo_2 <- sjlabelled::set_label(x = datos$merit_esfuerzo_2,
-                                             label =  "En descuerdo")
-
-datos$merit_esfuerzo_3 <- sjlabelled::set_label(x = datos$merit_esfuerzo_3,
-                                                label =  "De acuerdo")
-
-datos$merit_esfuerzo_4 <- sjlabelled::set_label(x = datos$merit_esfuerzo_4,
-                                                label =  "Muy de acuerdo")
+datos <- datos %>%
+  mutate(curso_rec = ifelse(curso == "Media", 1, 0))
 
 
+# justicia
+#datos <- datos %>% mutate(justicia_nota = log(nota/nota_justa))
 
-datos <- fastDummies::dummy_cols(datos,select_columns = "merit_talento", #remove_first_dummy = TRUE
-)
+datos <- datos %>%
+  mutate(justicia_nota = case_when(
+    merecimiento_nota == 2 ~ 1,
+    TRUE ~ log(nota / nota_justa)
+  ))
 
-datos$merit_talento_2 <- sjlabelled::set_label(x = datos$merit_talento_2,
-                                                label =  "En descuerdo")
-
-datos$merit_talento_3 <- sjlabelled::set_label(x = datos$merit_talento_3,
-                                                label =  "De acuerdo")
-
-datos$merit_talento_4 <- sjlabelled::set_label(x = datos$merit_talento_4,
-                                                label =  "Muy de acuerdo")
-
-
-datos <- fastDummies::dummy_cols(datos,select_columns = "school_esfuerzo", #remove_first_dummy = TRUE
-)
-
-datos$school_esfuerzo_2 <- sjlabelled::set_label(x = datos$school_esfuerzo_2,
-                                                label =  "En descuerdo")
-
-datos$school_esfuerzo_3 <- sjlabelled::set_label(x = datos$school_esfuerzo_3,
-                                                label =  "De acuerdo")
-
-datos$school_esfuerzo_4 <- sjlabelled::set_label(x = datos$school_esfuerzo_4,
-                                                label =  "Muy de acuerdo")
-
-datos <- fastDummies::dummy_cols(datos,select_columns = "school_talento", #remove_first_dummy = TRUE
-)
-
-datos$school_talento_2 <- sjlabelled::set_label(x = datos$school_talento_2,
-                                                 label =  "En descuerdo")
-
-datos$school_talento_3 <- sjlabelled::set_label(x = datos$school_talento_3,
-                                                 label =  "De acuerdo")
-
-datos$school_talento_4 <- sjlabelled::set_label(x = datos$school_talento_4,
-                                                 label =  "Muy de acuerdo")
-
-
-datos <- fastDummies::dummy_cols(datos,select_columns = "school_merecimiento", #remove_first_dummy = TRUE
-)
-
-datos$school_merecimiento_2 <- sjlabelled::set_label(x = datos$school_merecimiento_2,
-                                                label =  "En descuerdo")
-
-datos$school_merecimiento_3 <- sjlabelled::set_label(x = datos$school_merecimiento_3,
-                                                label =  "De acuerdo")
-
-datos$school_merecimiento_4 <- sjlabelled::set_label(x = datos$school_merecimiento_4,
-                                                label =  "Muy de acuerdo")
 
 save(datos,file = "input/data/proc/proc_w02.RData")
