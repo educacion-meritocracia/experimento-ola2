@@ -1,0 +1,552 @@
+---
+title: "Análisis Experimento o2"
+author: "EDUMER"
+fontsize: 14pt
+#bibliography: "../input/mini-proyecto.bib"
+#csl: "input/bib/apa6.csl"
+format:
+  html:
+    toc: true
+    toc-location: right
+    toc-depth: 6
+    toc-expand: 6
+    toc-title: Contenidos
+    number-sections: false
+    number-depth: 6
+    theme: 
+    - edumer.scss
+    - sandstone
+    title-block-banner: true
+editor: visual
+lang: es
+---
+
+```{r}
+#| echo: false
+pacman::p_load(dplyr, sjPlot, stargazer, kableExtra, texreg, haven, sjlabelled, ggplot2, summarytools, ggtext, ggpubr, hrbrthemes, tidyr, stringr, sjmisc, ggalluvial, shadowtext, sjmisc, lme4, Matrix, ordinal, nnet)
+
+```
+
+# Base long
+
+```{r}
+#| echo: false
+
+load("../input/data/proc/proc_w02_exp4.RData")
+datos_long <- datos
+```
+
+-   Gilgen (2020) utiliza la base en formato long y modelos multinivel.
+
+-   Brunetti et al. (2025) utiliza la base en formato long y modelos tobit.
+
+## Univariados
+
+```{r}
+#| echo: false
+print(summarytools::dfSummary(datos_long), method="render")
+```
+
+## ICC
+
+```{r}
+
+datos_long$variable <-  as.factor(datos_long$variable)
+datos_long <- datos_long %>%
+  mutate(variable_rec = case_when(variable == "exp_t4_a" ~ 1,
+                                  variable == "exp_t4_b"~ 2 ,
+                                  variable == "exp_t4_c"~ 3, 
+                                  variable == "exp_t4_d"~ 4 ))
+          
+
+datos_long$variable <-car::recode(datos_long$variable,
+                               recodes = c("1 = 'exp_t4_a ';
+                                                       2 = 'exp_t4_b ';
+                                                       3 = 'exp_t4_c';
+                                                       4 = 'exp_t4_d '"))
+
+icc = lmer(decimas_asignadas ~ 1 + (1 | id_estudiante) + (1 | variable_rec), data = datos_long)
+summary(icc)
+
+reghelper::ICC(icc)
+```
+Al anidar por viñeta, se presenta varianza e ICC. Sin embargo, la varianza a nivel de estudiante sigue siendo 0. 
+
+A continuación, se presentan modelos multinivel anidando por estudiante y viñeta: 
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+r1 <- lmer(decimas_asignadas ~ genero +  (1 | id_estudiante) + (1 | variable_rec), data = datos_long)
+
+r2 <- lmer(decimas_asignadas ~ curso + (1 | id_estudiante) + (1 | variable_rec), data = datos_long)
+
+r3 <- lmer(decimas_asignadas ~ libros_hogar + (1 | id_estudiante) + (1 | variable_rec), data = datos_long)
+
+r4 <- lmer(decimas_asignadas ~ merit_esfuerzo + (1 | id_estudiante) + (1 | variable_rec), data = datos_long)
+
+
+r5 <- lmer(decimas_asignadas ~ merit_talento + (1 | id_estudiante) + (1 | variable_rec), data = datos_long)
+
+r6 <- lmer(decimas_asignadas ~ school_esfuerzo + (1 | id_estudiante) + (1 | variable_rec), data = datos_long)
+
+r7 <- lmer(decimas_asignadas ~ school_talento + (1 | id_estudiante) + (1 | variable_rec), data = datos_long)
+
+r8 <- lmer(decimas_asignadas ~ school_merecimiento + (1 | id_estudiante) + (1 | variable_rec), data = datos_long)
+
+r9 <- lmer(decimas_asignadas ~ nota + (1 | id_estudiante) + (1 | variable_rec), data = datos_long)
+
+r10 <- lmer(decimas_asignadas ~ justicia_nota + (1 | id_estudiante) + (1 | variable_rec), data = datos_long)
+
+
+
+```
+
+```{r}
+#| echo: false
+#| results: 'asis'
+texreg::htmlreg(
+  list(r1, r2, r3, r4, r5),
+  doctype = FALSE
+)
+
+texreg::htmlreg(
+  list(r6, r7, r8, r9, r10),
+  doctype = FALSE
+)
+```
+
+```{r}
+#| echo: false
+#| results: 'asis'
+
+reg1 <- lmer(decimas_asignadas ~ esfuerzo + contexto_hogar + (1 | id_estudiante) + (1 | variable_rec), data = datos_long)
+
+reg2 <- lmer(decimas_asignadas ~ esfuerzo + contexto_hogar + genero + curso + libros_hogar + (1 | id_estudiante) + (1 | variable_rec), data = datos_long)
+
+reg3 <- lmer(decimas_asignadas ~ esfuerzo + contexto_hogar + genero + curso + libros_hogar + merit_esfuerzo + merit_talento + school_esfuerzo + school_talento + school_merecimiento + (1 | id_estudiante) + (1 | variable_rec), data = datos_long)
+
+reg4 <- lmer(decimas_asignadas ~ esfuerzo + contexto_hogar + genero + curso + libros_hogar + merit_esfuerzo + merit_talento + school_esfuerzo + school_talento + school_merecimiento + nota +  (1 | id_estudiante) + (1 | variable_rec), data = datos_long)
+
+reg5 <- lmer(decimas_asignadas ~ esfuerzo + contexto_hogar + genero + curso + libros_hogar + merit_esfuerzo + merit_talento + school_esfuerzo + school_talento + school_merecimiento + justicia_nota + (1 | id_estudiante) + (1 | variable_rec), data = datos_long)
+
+reg6 <- lmer(decimas_asignadas ~ esfuerzo + contexto_hogar + genero + curso + libros_hogar + merit_esfuerzo + merit_talento + school_esfuerzo + school_talento + school_merecimiento + nota + justicia_nota + (1 | id_estudiante) + (1 | variable_rec), data = datos_long)
+
+texreg::htmlreg(list(reg1, reg2, reg3, reg4, reg5, reg6))
+```
+
+
+## Varianza
+
+Debido a que la ICC es 0 al agrupar por id_estudiante, se ahondará en el cálculo de la varianza del nivel 2.
+
+Calculamos la varianza total de la variable dependiente:
+
+```{r}
+#| collapse: false
+
+## var total
+var_t <- var(datos_long$decimas_asignadas)
+
+## vara por grupo
+var_g <- datos_long %>%
+  group_by(id_estudiante) %>%
+  summarise(var_y = var(decimas_asignadas), n = n())
+
+var_t
+var_g
+
+```
+
+Considerando que el valor de la varianza total, se coloca dicho valor como mínimo, para ver los grupos con mayor varianza.
+
+```{r}
+#| echo: false
+var_min <- 2.2
+var_max <- 25
+
+# Filtrar grupos cuya varianza está entre var_min y var_max
+grupos_validos <- var_g %>%
+  filter(var_y >= var_min & var_y <= var_max) %>%
+  pull(id_estudiante)
+
+# Filtrar data original para quedarte con esos grupos
+df <- datos %>%
+  filter(id_estudiante %in% grupos_validos)
+
+results_0 = lmer(decimas_asignadas ~ 1 + (1 | id_estudiante), data = df)
+summary(results_0)
+
+reghelper::ICC(results_0)
+
+```
+
+Al calcular la ICC con solo los grupos con mayor varianza, esta sigue siendo 0.
+
+## Otros tratamientos de la variable dependiente
+
+En el modelo anterior, las décimas son tratadas como variable númerica. A continuación se presentarán modelos que traten la variable dependiente como categórica.
+
+### Ordinal
+
+La forma en que tendría sentido es que la variable fuera ordinal, al poseer niveles. Sin embargo, no es muy interpetable.
+
+**Multinivel**
+
+```{r}
+#| echo: false
+#| collapse: false
+
+options(scipen = 999)
+
+datos_long$decimas_asignadas <- factor(datos_long$decimas_asignadas, 
+                                  levels = c(0,1,2,3,4,5,6,7,8,10), 
+                                  ordered = TRUE)
+
+modelo_0 <- ordinal::clmm(decimas_asignadas ~ 1 + (1 | id_estudiante), data = datos_long)
+
+summary(modelo_0)
+
+# Extraer la varianza de nivel 2 (aleatorio)
+var_grupo <- as.numeric(VarCorr(modelo_0)$id_estudiante)
+
+# Calcular ICC (logit link)
+icc <- var_grupo / (var_grupo + (pi^2 / 3))
+icc
+
+modelo1 <- ordinal::clmm(decimas_asignadas ~ esfuerzo + contexto_hogar + genero + (1 | id_estudiante), data = datos_long)
+summary(modelo1)
+sjPlot::tab_model(modelo1,
+                  transform = "exp", 
+                  show.ci = FALSE)
+
+# Extraer la varianza de nivel 2 (aleatorio)
+var_grupo <- as.numeric(VarCorr(modelo1)$id_estudiante)
+
+# Calcular ICC (logit link)
+icc <- var_grupo / (var_grupo + (pi^2 / 3))
+icc
+```
+
+**Solo un nivel**
+
+```{r}
+#| echo: false
+
+```
+
+### Nominal
+
+Al tratar la variable como nominal, se puede distinguir el efecto por cada décima, utilizando tab_model.
+
+**Multinivel**
+
+```{r}
+#| echo: false
+
+#modelo3 <- brms::brm(
+ # formula = decimas_asignadas ~ esfuerzo + contexto_hogar + genero + (1 | id_estudiante),
+  #family = brms::categorical(),
+  #data = datos_long)
+
+#sjPlot::tab_model(modelo3,
+               #   transform = "exp", 
+                #  show.ci = FALSE)
+```
+
+**Solo un nivel**
+
+```{r}
+#| echo: false
+
+modelo4 <- nnet::multinom(decimas_asignadas ~ esfuerzo + contexto_hogar + genero, data = datos_long)
+
+sjPlot::tab_model(modelo4,
+                  transform = "exp", 
+                  show.ci = FALSE)
+```
+
+Al utilizar el formato long, no es posible distinguir el efecto por cada perfil. Para ello, se intentarán modelos con la base en formato wide.
+
+# Base wide
+
+-   Se utilizarán las variables del experimento de forma separada y así observar el efecto según perfil.
+
+```{r}
+#| echo: false
+
+load("../input/data/proc/proc_w02.RData")
+
+datos_wide <- datos
+```
+
+## Univariados
+
+```{r}
+#| echo: false
+
+print(summarytools::dfSummary(datos_wide), method="render")
+```
+
+## Estudiante A
+
+**Dependiente númerica**
+
+```{r}
+#| echo: false
+#| results: asis
+
+datos_wide <- datos_wide %>%
+  mutate(justicia_nota = case_when(
+    merecimiento_nota == 2 ~ 1,
+    TRUE ~ log(nota / nota_justa)
+  ))
+
+reg1 <- lm(exp_t4_a  ~ genero, data = datos_wide)
+reg2 <- lm(exp_t4_a  ~ curso, data = datos_wide)
+reg3 <- lm(exp_t4_a  ~ libros_hogar, data = datos_wide)
+reg4 <- lm(exp_t4_a ~ merit_esfuerzo, data = datos_wide)
+reg5 <- lm(exp_t4_a ~ merit_talento, data = datos_wide)
+reg6 <- lm(exp_t4_a ~ school_esfuerzo, data = datos_wide)
+reg7 <- lm(exp_t4_a ~ school_talento, data = datos_wide)
+reg8 <- lm(exp_t4_a ~ school_merecimiento, data = datos_wide)
+reg9 <- lm(exp_t4_a ~ nota, data = datos_wide)
+reg10 <- lm(exp_t4_a ~ justicia_nota, data = datos_wide)
+
+#sjPlot::tab_model(reg1)
+texreg::htmlreg(list(reg1, reg2, reg3, reg4,reg5,reg6,reg7,reg8,reg9, reg10), 
+    custom.model.names = c("Modelo 1","Modelo 2","Modelo 3","Modelo 4", "Modelo 5", "Modelo 6", "Modelo 7", "Modelo 8", "Modelo 9", "Modelo 10"))
+```
+
+
+```{r}
+#| echo: false
+#| results: asis
+
+reg1 <- lm(exp_t4_a  ~ genero + curso + libros_hogar, data = datos_wide)
+reg2 <- lm(exp_t4_a  ~ genero + curso + libros_hogar + merit_esfuerzo + merit_talento, data = datos_wide)
+reg3 <- lm(exp_t4_a  ~ genero + curso + libros_hogar + merit_esfuerzo + merit_talento + school_esfuerzo + school_talento + school_merecimiento + nota + justicia_nota, data = datos_wide)
+#sjPlot::tab_model(reg1)
+texreg::htmlreg(list(reg1, reg2, reg3), 
+    custom.model.names = c("Modelo 1","Modelo 2","Modelo 3"))
+```
+
+**Dependiente ordinal**
+
+```{r}
+#| echo: false
+datos_wide$exp_t4_a <- as.factor(datos_wide$exp_t4_a)
+
+reg1 <- ordinal::clm(exp_t4_a  ~ genero, data = datos_wide)
+reg2 <- ordinal::clm(exp_t4_a  ~ curso, data = datos_wide)
+reg3 <- ordinal::clm(exp_t4_a  ~ libros_hogar, data = datos_wide)
+reg4 <- ordinal::clm(exp_t4_a ~ merit_esfuerzo, data = datos_wide)
+reg5 <- ordinal::clm(exp_t4_a ~ merit_talento, data = datos_wide)
+reg6 <- ordinal::clm(exp_t4_a ~ school_esfuerzo, data = datos_wide)
+reg7 <- ordinal::clm(exp_t4_a ~ school_talento, data = datos_wide)
+reg8 <- ordinal::clm(exp_t4_a ~ school_merecimiento, data = datos_wide)
+reg9 <- ordinal::clm(exp_t4_a ~ nota, data = datos_wide)
+reg10 <- ordinal::clm(exp_t4_a ~ justicia_nota, data = datos_wide)
+
+```
+
+```{r}
+#| echo: false
+sjPlot::tab_model(reg1)
+```
+
+```{r}
+#| echo: false
+sjPlot::tab_model(reg2)
+```
+
+```{r}
+#| echo: false
+sjPlot::tab_model(reg3)
+```
+
+```{r}
+#| echo: false
+sjPlot::tab_model(reg4)
+```
+
+```{r}
+#| echo: false
+sjPlot::tab_model(reg5)
+```
+
+```{r}
+#| echo: false
+sjPlot::tab_model(reg6)
+```
+
+```{r}
+#| echo: false
+sjPlot::tab_model(reg7)
+```
+
+```{r}
+#| echo: false
+sjPlot::tab_model(reg8)
+```
+
+```{r}
+#| echo: false
+sjPlot::tab_model(reg9)
+```
+
+```{r}
+#| echo: false
+sjPlot::tab_model(reg10)
+```
+
+```{r}
+#| echo: false
+
+reg01 <- ordinal::clm(exp_t4_a  ~ genero + curso + libros_hogar, data = datos_wide)
+reg02 <- ordinal::clm(exp_t4_a  ~  genero + curso + libros_hogar + merit_esfuerzo + merit_talento, data = datos_wide)
+reg03 <- ordinal::clm(exp_t4_a  ~ genero + curso + libros_hogar + merit_esfuerzo + merit_talento + school_esfuerzo + school_talento + school_merecimiento + nota + justicia_nota, data = datos_wide)
+```
+
+```{r}
+#| echo: false
+sjPlot::tab_model(reg01)
+```
+
+```{r}
+#| echo: false
+sjPlot::tab_model(reg02)
+```
+
+```{r}
+#| echo: false
+sjPlot::tab_model(reg03)
+```
+
+**Dependiente nominal**
+```{r}
+#| echo: false
+
+reg1 <- nnet::multinom(exp_t4_a  ~ genero, data = datos_wide)
+reg2 <- nnet::multinom(exp_t4_a  ~ curso, data = datos_wide)
+reg3 <- nnet::multinom(exp_t4_a  ~ libros_hogar, data = datos_wide)
+reg4 <- nnet::multinom(exp_t4_a ~ merit_esfuerzo, data = datos_wide)
+reg5 <- nnet::multinom(exp_t4_a ~ merit_talento, data = datos_wide)
+reg6 <- nnet::multinom(exp_t4_a ~ school_esfuerzo, data = datos_wide)
+reg7 <- nnet::multinom(exp_t4_a ~ school_talento, data = datos_wide)
+reg8 <- nnet::multinom(exp_t4_a ~ school_merecimiento, data = datos_wide)
+reg9 <- nnet::multinom(exp_t4_a ~ nota, data = datos_wide)
+rego10 <- nnet::multinom(exp_t4_a ~ justicia_nota, data = datos_wide)
+
+```
+
+```{r}
+#| echo: false
+sjPlot::tab_model(reg1)
+```
+
+```{r}
+#| echo: false
+sjPlot::tab_model(reg2)
+```
+
+```{r}
+#| echo: false
+sjPlot::tab_model(reg3)
+```
+
+```{r}
+#| echo: false
+sjPlot::tab_model(reg4)
+```
+
+```{r}
+#| echo: false
+sjPlot::tab_model(reg5)
+```
+
+```{r}
+#| echo: false
+sjPlot::tab_model(reg6)
+```
+
+```{r}
+#| echo: false
+sjPlot::tab_model(reg7)
+```
+
+```{r}
+#| echo: false
+sjPlot::tab_model(reg8)
+```
+
+```{r}
+#| echo: false
+sjPlot::tab_model(reg9)
+```
+
+
+```{r}
+#| echo: false
+sjPlot::tab_model(reg10)
+```
+
+```{r}
+#| echo: false
+#| results: asis
+#| message: false
+
+rego1 <- nnet::multinom(exp_t4_a  ~ genero + curso + libros_hogar, data = datos_wide)
+rego2 <- nnet::multinom(exp_t4_a  ~ genero + curso + libros_hogar + merit_esfuerzo + merit_talento, data = datos_wide)
+rego3 <- nnet::multinom(exp_t4_a  ~ genero + curso + libros_hogar + merit_esfuerzo + merit_talento + school_esfuerzo + school_talento + school_merecimiento + nota + justicia_nota, data = datos_wide)
+
+```
+
+```{r}
+#| echo: false
+sjPlot::tab_model(rego1)
+```
+
+```{r}
+#| echo: false
+sjPlot::tab_model(rego2)
+```
+
+```{r}
+#| echo: false
+sjPlot::tab_model(rego3)
+```
+
+## Estudiante B
+
+**Dependiente númerica**
+
+**Dependiente ordinal**
+
+**Dependiente nominal**
+
+
+## Estudiante C
+
+**Dependiente númerica**
+
+**Dependiente ordinal**
+
+**Dependiente nominal**
+
+
+
+## Estudiante D
+
+**Dependiente númerica**
+
+**Dependiente ordinal**
+
+**Dependiente nominal**
+
+
+
+
+

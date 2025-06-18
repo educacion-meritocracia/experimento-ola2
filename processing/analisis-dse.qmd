@@ -30,11 +30,6 @@ load("../input/data/proc/proc_w02.RData")
 
 ```
 
-
-
-
-
-
 ```{r}
 #| echo: false
 #| label: exp 4
@@ -82,7 +77,7 @@ datos_viñetas <- datos_viñetas %>%
 
 ## Univariados
 
-Univariados generales (incluyendo solo el experimento 4). 
+Univariados generales (incluyendo solo el experimento 4).
 
 ```{r}
 #| echo: false
@@ -93,7 +88,7 @@ print(summarytools::dfSummary(datos_viñetas), method="render")
 
 ## Parte 1
 
-Se trabaja con un primer subset denominado `datos_viñetas_1`, el cual contiene solo las décimas asignadas del experimento 1. 
+Se trabaja con un primer subset denominado `datos_viñetas_1`, el cual contiene solo las décimas asignadas del experimento 1.
 
 ```{r}
 #| echo: false
@@ -139,7 +134,6 @@ summarytools::dfSummary(datos_viñetas_1["decimas_asignadas"]) |>
 
 ```
 
-
 ### Correlaciones
 
 ```{r}
@@ -160,8 +154,8 @@ sjPlot::tab_corr(M,
                  triangle = "lower")
 ```
 
-
 ### Modelos simples
+
 ```{r}
 #| echo: false
 #| message: false
@@ -207,19 +201,25 @@ texreg::htmlreg(
   doctype = FALSE
 )
 ```
+
 ### ICC
+
 ```{r}
 #| echo: false
 #| warning: false
 #| message: false
 
-icc_1 = lmer(decimas_asignadas ~ 1 + (1 | id_estudiante), data = datos_viñetas_1)
+agg_datos=datos_viñetas %>% group_by(id_estudiante) %>% summarise_all(funs(mean)) %>% as.data.frame()
+stargazer(agg_datos, type = "text")
+
+icc_1 = lmer(decimas_asignadas ~ 1 + (1 | id_estudiante), data = agg_datos)
 summary(icc_1)
 
+i
 reghelper::ICC(icc_1)
 ```
 
-### Modelos multinivel 
+### Modelos multinivel
 
 ```{r}
 #| echo: false
@@ -238,12 +238,9 @@ reg6_1 <- lmer(decimas_asignadas ~ descripcion_viñeta + genero + curso + libros
 texreg::htmlreg(list(reg1_1, reg2_1, reg3_1, reg4_1, reg5_1, reg6_1))
 ```
 
-
-
-
 ## Parte 2
 
-Se trabaja con un primer subset denominado `datos_viñetas_2`, el cual contiene solo las décimas asignadas del experimento 2. 
+Se trabaja con un primer subset denominado `datos_viñetas_2`, el cual contiene solo las décimas asignadas del experimento 2.
 
 ```{r}
 #| echo: false
@@ -312,8 +309,8 @@ sjPlot::tab_corr(M,
 
 ```
 
-
 ### Modelos simples
+
 ```{r}
 #| echo: false
 #| message: false
@@ -359,6 +356,7 @@ texreg::htmlreg(
   doctype = FALSE
 )
 ```
+
 ### ICC
 
 ```{r}
@@ -373,8 +371,7 @@ reghelper::ICC(icc_2)
 
 ```
 
-
-### Modelos multinivel 
+### Modelos multinivel
 
 ```{r}
 #| echo: false
@@ -392,11 +389,9 @@ reg6_2 <- lmer(decimas_asignadas ~ descripcion_viñeta + genero + curso + libros
 texreg::htmlreg(list(reg1_2, reg2_2, reg3_2, reg4_2, reg5_2, reg6_2))
 ```
 
+## Parte 3
 
-
-## Parte 3 
-
-Se trabaja con un primer subset denominado `datos_viñetas_3`, el cual contiene solo las décimas asignadas del experimento 3. 
+Se trabaja con un primer subset denominado `datos_viñetas_3`, el cual contiene solo las décimas asignadas del experimento 3.
 
 ```{r}
 #| echo: false
@@ -477,8 +472,8 @@ sjPlot::tab_corr(M,
 
 ```
 
-
 ### Modelos simples
+
 ```{r}
 #| echo: false
 #| message: false
@@ -524,6 +519,7 @@ texreg::htmlreg(
   doctype = FALSE
 )
 ```
+
 ### ICC
 
 ```{r}
@@ -533,8 +529,7 @@ texreg::htmlreg(
 
 ```
 
-
-### Modelos multinivel 
+### Modelos multinivel
 
 ```{r}
 #| echo: false
@@ -551,8 +546,6 @@ reg6_3 <- lmer(decimas_asignadas ~ esfuerzo + contexto_hogar + genero + curso + 
 texreg::htmlreg(list(reg1_3, reg2_3, reg3_3, reg4_3, reg5_3, reg6_3))
 ```
 
-
-
 ## Experimento
 
 ```{r}
@@ -563,9 +556,7 @@ summarytools::dfSummary(datos_viñetas["decimas_asignadas"]) |>
 
 ```
 
-
-### Correlaciones 
-
+### Correlaciones
 
 ```{r}
 #| echo: false
@@ -595,9 +586,7 @@ M <- cor(M)
 
 ```
 
-
 ### Modelos simples
-
 
 ```{r}
 #| echo: false
@@ -645,7 +634,6 @@ texreg::htmlreg(
 )
 ```
 
-
 ### ICC
 
 ```{r}
@@ -656,9 +644,7 @@ summary(results_0)
 reghelper::ICC(results_0)
 ```
 
-
 ### Modelos multinivel
-
 
 ```{r}
 #| echo: false
@@ -733,6 +719,7 @@ graf3=ggeffects::ggpredict(reg, terms = c("merit_esfuerzo","id_estudiante [sampl
 plot(graf3)
 
 ```
+
 ```{r}
 #| echo: false
 datos_viñetas$school_esfuerzo <- sjlabelled::set_label(x= datos_viñetas$school_esfuerzo,label = "Esfuerzo escuela")
@@ -791,4 +778,3 @@ texreg::htmlreg(list(reg6_1, reg6_2, reg6_3, reg6),
     custom.model.names = c("Exp 1","Exp 2","Exp 3", "Exp 4"),    
     custom.coef.names = c("Intercepto", "Viñeta exp 1","Mujer", "Media", "Más de 25 libros", "Esfuerzo social", "Talento social", "Esfuerzo escuela", "Talento escuela", "Merecimiento escuela", "Rendimiento", "Justicia", "Viñeta exp 2", "Se esfuerza más", "Casa pequeña"))
 ```
-
